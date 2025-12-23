@@ -1,0 +1,12 @@
+[Unit]
+Description=Typesense Server
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/opt/ezboiler
+ExecStart=/opt/ezboiler/typesense-server --data-dir=/opt/ezboiler/typesense-data --api-key=xyz --listen-port=8108 --enable-cors
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

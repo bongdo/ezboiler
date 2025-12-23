@@ -1,0 +1,18 @@
+[Unit]
+Description=EzBoiler Go Backend
+After=network.target typesense.service
+
+[Service]
+User=root
+WorkingDirectory=/opt/ezboiler
+ExecStart=/opt/ezboiler/go-server
+Restart=always
+Environment=DB_PATH=/opt/ezboiler/data.db
+Environment=TYPESENSE_URL=http://localhost:8108
+Environment=TYPESENSE_API_KEY=xyz
+Environment=INCOMING_DIR=/opt/ezboiler/incoming
+Environment=TELEGRAM_TOKEN=YOUR_TOKEN
+Environment=TELEGRAM_WEBHOOK_URL=https://ezboiler.ru/telegram/webhook
+
+[Install]
+WantedBy=multi-user.target

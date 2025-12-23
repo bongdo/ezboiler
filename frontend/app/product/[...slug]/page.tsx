@@ -1,12 +1,12 @@
 
 import AddToCartButton from '@/components/AddToCartButton';
-import { getProduct, getProducts } from '@/lib/api';
+import { getProduct, getProducts, Product } from '@/lib/api';
 import { notFound } from 'next/navigation';
 
 export async function generateStaticParams() {
   // Fetch ALL products to generate paths
   const products = await getProducts();
-  return products.map((product) => ({
+  return products.map((product: Product) => ({
     slug: product.vendor_code.split('/'), // Handle slashes in vendor_code
   }));
 }
@@ -56,7 +56,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <div className="mt-8">
               <h3 className="font-bold text-lg mb-2">Совместимость</h3>
               <ul className="list-disc pl-5">
-                {product.compatible_boilers.map((boiler, idx) => (
+                {product.compatible_boilers.map((boiler: string, idx: number) => (
                   <li key={idx}>{boiler}</li>
                 ))}
               </ul>

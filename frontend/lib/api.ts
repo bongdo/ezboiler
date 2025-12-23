@@ -1,6 +1,7 @@
 
-import { db } from './firebase';
+import { db, auth } from './firebase';
 import { ref, get, child } from 'firebase/database';
+import { signInAnonymously } from 'firebase/auth';
 
 const DB_REF = ref(db);
 
@@ -32,65 +33,115 @@ function toArray<T>(data: any): T[] {
     return Object.values(data);
 }
 
+// Helper to get fallback data
+async function getFallbackData() {
+    console.warn("Using fallback data from products.json");
+    if (typeof window === 'undefined') {
+        try {
+            const fs = await import('fs/promises');
+            const path = await import('path');
+            const filePath = path.join(process.cwd(), 'public', 'products.json');
+            const data = await fs.readFile(filePath, 'utf-8');
+            return JSON.parse(data);
+        } catch (e) {
+            console.error("Server fallback error", e);
+            throw e;
+        }
+    } else {
+        try {
+            const res = await fetch('/products.json');
+            if (!res.ok) throw new Error("Fallback fetch failed");
+            return res.json();
+        } catch (e) {
+            console.error("Client fallback error", e);
+            throw e;
+        }
+    }
+}
+
 // Fetch all necessary data at once (caching strategy could be added later)
 async function fetchFullData() {
-    const [productsSnap, partTypesSnap, brandsSnap, boilersSnap, partsBoilersSnap] = await Promise.all([
-        get(child(DB_REF, 'parts')), // Assuming table 'parts' -> node 'parts'
-        get(child(DB_REF, 'part_types')),
-        get(child(DB_REF, 'brands')),
-        get(child(DB_REF, 'boilers')),
-        get(child(DB_REF, 'parts_boilers'))
-    ]);
-
-    const productsRaw = toArray<any>(productsSnap.val());
-    const partTypes = toArray<{id: number, name: string}>(partTypesSnap.val());
-    const brands = toArray<{id: number, name: string}>(brandsSnap.val());
-    const boilers = toArray<{id: number, brand_id: number, name: string}>(boilersSnap.val());
-    const partsBoilers = toArray<{part_code: string, boiler_id: number}>(partsBoilersSnap.val());
-
-    // Create Lookups
-    const partTypeMap = new Map(partTypes.map(pt => [pt.id, pt.name]));
-    const brandMap = new Map(brands.map(b => [b.id, b.name]));
-    const boilerMap = new Map(boilers.map(b => [b.id, b]));
-
-    // Join Data
-    // Group boiler names by part_code
-    const boilerNamesByPart = new Map<string, string[]>();
-    const boilerIdsByPart = new Map<string, Set<number>>();
-
-    partsBoilers.forEach(pb => {
-        if (!boilerIdsByPart.has(pb.part_code)) boilerIdsByPart.set(pb.part_code, new Set());
-        boilerIdsByPart.get(pb.part_code)?.add(pb.boiler_id);
-        
-        const b = boilerMap.get(pb.boiler_id);
-        if (b) {
-            if (!boilerNamesByPart.has(pb.part_code)) boilerNamesByPart.set(pb.part_code, []);
-            boilerNamesByPart.get(pb.part_code)?.push(b.name);
+    try {
+        if (!auth.currentUser) {
+           await signInAnonymously(auth);
         }
-    });
 
-    const products: Product[] = productsRaw.map(p => {
-        return {
-            vendor_code: p.vendor_code,
-            name: p.name,
-            description: p.description,
-            price: p.price,
-            quantity: p.quantity,
-            image: p.image, // Assuming this is now a URL or path handled by frontend
-            part_type: partTypeMap.get(p.part_type_id) || '',
-            original_brand_id: p.original_brand_id,
-            original_brand: p.original_brand_id ? brandMap.get(p.original_brand_id) : undefined,
-            in_price_list: p.in_price_list,
-            compatible_boilers: boilerNamesByPart.get(p.vendor_code) || [],
-            // Internal use for filtering
-            _boiler_ids: boilerIdsByPart.get(p.vendor_code) || new Set(),
-            _part_type_id: p.part_type_id,
-            _is_used: p.is_used === 1,
-            _is_original: !!p.original_brand_id // Heuristic
-        } as Product & { _boiler_ids: Set<number>, _part_type_id: number, _is_used: boolean, _is_original: boolean };
-    });
+        const [productsSnap, partTypesSnap, brandsSnap, boilersSnap, partsBoilersSnap] = await Promise.all([
+            get(child(DB_REF, 'parts')), 
+            get(child(DB_REF, 'part_types')),
+            get(child(DB_REF, 'brands')),
+            get(child(DB_REF, 'boilers')),
+            get(child(DB_REF, 'parts_boilers'))
+        ]);
 
-    return { products, filters: { part_types: partTypes, brands, boilers } };
+        const productsRaw = toArray<any>(productsSnap.val());
+        const partTypes = toArray<{id: number, name: string}>(partTypesSnap.val());
+        const brands = toArray<{id: number, name: string}>(brandsSnap.val());
+        const boilers = toArray<{id: number, brand_id: number, name: string}>(boilersSnap.val());
+        const partsBoilers = toArray<{part_code: string, boiler_id: number}>(partsBoilersSnap.val());
+
+        // Create Lookups
+        const partTypeMap = new Map(partTypes.map(pt => [pt.id, pt.name]));
+        const brandMap = new Map(brands.map(b => [b.id, b.name]));
+        const boilerMap = new Map(boilers.map(b => [b.id, b]));
+
+        // Join Data
+        const boilerNamesByPart = new Map<string, string[]>();
+        const boilerIdsByPart = new Map<string, Set<number>>();
+
+        partsBoilers.forEach(pb => {
+            if (!boilerIdsByPart.has(pb.part_code)) boilerIdsByPart.set(pb.part_code, new Set());
+            boilerIdsByPart.get(pb.part_code)?.add(pb.boiler_id);
+            
+            const b = boilerMap.get(pb.boiler_id);
+            if (b) {
+                if (!boilerNamesByPart.has(pb.part_code)) boilerNamesByPart.set(pb.part_code, []);
+                boilerNamesByPart.get(pb.part_code)?.push(b.name);
+            }
+        });
+
+        const products: Product[] = productsRaw.map(p => {
+            return {
+                vendor_code: p.vendor_code,
+                name: p.name,
+                description: p.description,
+                price: p.price,
+                quantity: p.quantity,
+                image: p.image, 
+                part_type: partTypeMap.get(p.part_type_id) || '',
+                original_brand_id: p.original_brand_id,
+                original_brand: p.original_brand_id ? brandMap.get(p.original_brand_id) : undefined,
+                in_price_list: p.in_price_list,
+                compatible_boilers: boilerNamesByPart.get(p.vendor_code) || [],
+                _boiler_ids: boilerIdsByPart.get(p.vendor_code) || new Set(),
+                _part_type_id: p.part_type_id,
+                _is_used: p.is_used === 1,
+                _is_original: !!p.original_brand_id 
+            } as Product & { _boiler_ids: Set<number>, _part_type_id: number, _is_used: boolean, _is_original: boolean };
+        });
+
+        return { products, filters: { part_types: partTypes, brands, boilers } };
+
+    } catch (e) {
+        console.error("Firebase fetch error, retrying with fallback...", e);
+        const fallback = await getFallbackData();
+        
+        // Re-process fallback data if needed?
+        // Fallback JSON is already formatted as { products, filters } from python export.
+        // But the python export outputted `_boiler_ids` as arrays (JSON).
+        // We need to convert `_boiler_ids` to Set for filtering logic in `getProducts`.
+        
+        const rawProducts: any[] = fallback.products;
+        const processedProducts: Product[] = rawProducts.map((p: any) => ({
+            ...p,
+            _boiler_ids: new Set(p._boiler_ids || [])
+        })) as unknown as Product[];
+        
+        return { 
+            products: processedProducts, 
+            filters: fallback.filters as Filters
+        };
+    }
 }
 
 export async function getProducts(params?: { q?: string; type_id?: number; boiler_id?: number; is_used?: boolean; is_original?: boolean; limit?: number; offset?: number }) {
@@ -103,20 +154,20 @@ export async function getProducts(params?: { q?: string; type_id?: number; boile
         if (params) {
             if (params.q) {
                 const q = params.q.toLowerCase();
-                result = result.filter(p => 
+                result = result.filter((p: Product) => 
                     p.name.toLowerCase().includes(q) || 
                     p.vendor_code.toLowerCase().includes(q) ||
                     (p.original_brand && p.original_brand.toLowerCase().includes(q))
                 );
             }
             if (params.type_id) {
-                result = result.filter(p => (p as any)._part_type_id === params.type_id);
+                result = result.filter((p: Product) => (p as any)._part_type_id === params.type_id);
             }
             if (params.boiler_id) {
-                result = result.filter(p => (p as any)._boiler_ids.has(params.boiler_id!));
+                result = result.filter((p: Product) => (p as any)._boiler_ids.has(params.boiler_id!));
             }
             if (params.is_used !== undefined) {
-                result = result.filter(p => (p as any)._is_used === params.is_used);
+                result = result.filter((p: Product) => (p as any)._is_used === params.is_used);
             }
             if (params.is_original !== undefined) {
                 // If is_original is true, we want original_brand_id key present?
@@ -129,10 +180,10 @@ export async function getProducts(params?: { q?: string; type_id?: number; boile
                 // It doesn't set a is_original boolean column.
                 // So checking original_brand_id is correct.
                 if (params.is_original) {
-                   result = result.filter(p => !!p.original_brand_id);
+                   result = result.filter((p: Product) => !!p.original_brand_id);
                 } else {
                    // If is_original is false, it means "Analog"
-                   result = result.filter(p => !p.original_brand_id); 
+                   result = result.filter((p: Product) => !p.original_brand_id); 
                 }
             }
         }
@@ -152,32 +203,11 @@ export async function getProducts(params?: { q?: string; type_id?: number; boile
 
 export async function getProduct(id: string) {
     try {
-        const productSnap = await get(child(DB_REF, `parts/${id}`)); // Assuming keyed by vendor_code
-        if (!productSnap.exists()) return null;
-        
-        const raw = productSnap.val();
-        
-        // We need to Hydrate it with names and boilers
-        // This is inefficient to fetch all for one product, but needed for compatibility
-        // Or we can just fetch specific boilers if parts_boilers is keyed by part_code
-        
-        // Let's try to do a smarter specific fetch
-        const partTypesSnap = await get(child(DB_REF, 'part_types'));
-        const brandsSnap = await get(child(DB_REF, 'brands'));
-        // For boilers, we only need compatible ones. 
-        // If parts_boilers is list, we have to scan it or query it.
-        // query(ref(db, 'parts_boilers'), orderByChild('part_code'), equalTo(id))
-        
-        // Assuming we can use full fetch for now to be safe.
-        // Optimization: Fetch just what is needed.
-        
-        // ... But re-using fetchFullData filters is easier for now to ensure consistency
-        // and data size is likely small.
-        
+        // Use fetchFullData to utilize fallback logic if Firebase fails
         const { products } = await fetchFullData();
         return products.find(p => p.vendor_code === id) || null;
     } catch (e) {
-        console.error(e);
+        console.error("Error fetching product", e);
         return null;
     }
 }

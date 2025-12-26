@@ -338,19 +338,8 @@
             // UI Updates
             // UI Updates
             
-            // Sidebar Logic: 
-            // - If mode is 'brands', keep sidebar visible.
-            // - If mode is 'types' (implied by type criteria without brand?), hide execution handled in setMode/init?
-            // User: "Sidebar... visible ONLY when .mode-toggle is 'By Brands'".
-            // If calling showProducts from Type view, mode is 'types', so sidebar is hidden.
-            // If calling showProducts from Brand view, mode is 'brands', so sidebar is VISIBLE.
-            // Existing code forced it hidden: `sidebar.classList.add('hidden');` -> REMOVE THIS.
-            
-            if (state.mode === 'brands') {
-                 sidebar.classList.remove('hidden');
-            } else {
-                 sidebar.classList.add('hidden');
-            }
+            // Sidebar Logic: Strict HIDE when viewing product list (per user request)
+            sidebar.classList.add('hidden');
             
             // Show Filters & Animate
             activateFiltersAnimation();

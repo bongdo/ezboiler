@@ -95,6 +95,22 @@
         </div>
     </footer>
 
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;">
+        <div style="background:white; max-width:600px; margin:2rem auto; padding:2rem; border-radius:0.5rem; max-height:90vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h2 style="font-size:1.5rem; font-weight:bold;">Корзина</h2>
+                <button onclick="document.getElementById('cartModal').style.display='none'" style="border:none; background:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            <div id="cartItems"></div>
+            <div style="text-align:right; margin-top:1rem; font-weight:bold; font-size:1.2rem;">
+                Итого: <span id="cartTotal">0</span> &#8381;
+            </div>
+             <button style="width:100%; background:var(--primary); color:white; border:none; padding:1rem; margin-top:1rem; border-radius:0.5rem; font-weight:bold; cursor:pointer;" onclick="alert('Заказ оформлен (демо)!')">Оформить заказ</button>
+        </div>
+    </div>
+
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -104,42 +120,116 @@
         let db;
         let allProducts = [];
         let brands = [];
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-        // Init App
+        // Expose cart functions global
+        window.addToCart = (vendorCode) => {
+            const product = allProducts.find(p => p.vendorCode === vendorCode);
+            if (!product) return;
+            
+            const existing = cart.find(i => i.vendorCode === vendorCode);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({...product, qty: 1});
+            }
+            updateCart();
+            alert('Товар добавлен в корзину');
+        };
+
+        window.removeFromCart = (vendorCode) => {
+            cart = cart.filter(i => i.vendorCode !== vendorCode);
+            updateCart();
+            renderCart();
+        };
+
+        function updateCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+            const count = cart.reduce((acc, item) => acc + item.qty, 0);
+            document.querySelector('.cart-count').textContent = count;
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            if (cart.length === 0) {
+                container.innerHTML = '<p>Корзина пуста</p>';
+                document.getElementById('cartTotal').textContent = '0';
+                return;
+            }
+            
+            let total = 0;
+            container.innerHTML = cart.map(item => {
+                const itemTotal = (item.price || 0) * item.qty;
+                total += itemTotal;
+                return `
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding:0.5rem 0;">
+                        <div>
+                            <div style="font-weight:bold;">${item.name}</div>
+                            <div style="font-size:0.8rem; color:#666;">${item.vendorCode}</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:1rem;">
+                            <span>${item.qty} шт x ${item.price} &#8381;</span>
+                             <button onclick="window.removeFromCart('${item.vendorCode}')" style="color:red; border:none; background:none; cursor:pointer;">&times;</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('cartTotal').textContent = total.toLocaleString('ru-RU');
+        }
+
+        document.getElementById('cartBtn').addEventListener('click', () => {
+            renderCart();
+            document.getElementById('cartModal').style.display = 'block';
+        });
+        
+        // Init App with better error handling
         try {
+            console.log("Initializing Firebase...");
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             init();
         } catch (e) {
             console.error("Firebase init failed:", e);
-            document.getElementById('contentGrid').innerHTML = `<div class="loader" style="color: red;">Ошибка подключения к базе данных.<br>Проверьте config.js</div>`;
+            document.getElementById('contentGrid').innerHTML = `<div class="loader" style="color: red;">
+                <h3>Ошибка подключения</h3>
+                <p>${e.message}</p>
+                <p>Проверьте консоль браузера (F12) для деталей.</p>
+            </div>`;
         }
 
         async function init() {
-            await Promise.all([fetchBrands(), fetchProducts()]);
-            renderProducts(allProducts);
+            try {
+                await Promise.all([fetchBrands(), fetchProducts()]);
+                renderProducts(allProducts);
+                updateCart(); // Init cart count
+                console.log("Data loaded successfully");
+            } catch (err) {
+                 console.error("Data load error:", err);
+                 document.getElementById('contentGrid').innerHTML = `<div class="loader" style="color: orange;">
+                    <h3>Ошибка загрузки данных</h3>
+                     <p>Возможно, заблокирован доступ к базе данных.</p>
+                     <p>Попробуйте обновить страницу.</p>
+                     <p>Детали: ${err.message}</p>
+                </div>`;
+            }
         }
 
         async function fetchBrands() {
-            try {
-                const snap = await getDocs(collection(db, 'brands'));
-                brands = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => a.name.localeCompare(b.name));
-                
-                const select = document.getElementById('brandFilter');
-                brands.forEach(b => {
-                    const opt = document.createElement('option');
-                    opt.value = b.id;
-                    opt.textContent = b.name;
-                    select.appendChild(opt);
-                });
-            } catch(e) { console.error('Error fetching brands', e); }
+            const snap = await getDocs(collection(db, 'brands'));
+            brands = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => a.name.localeCompare(b.name));
+            
+            const select = document.getElementById('brandFilter');
+            brands.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b.id;
+                opt.textContent = b.name;
+                select.appendChild(opt);
+            });
         }
 
         async function fetchProducts() {
-            try {
-                const snap = await getDocs(collection(db, 'products'));
-                allProducts = snap.docs.map(d => d.data());
-            } catch(e) { console.error('Error fetching products', e); }
+            const snap = await getDocs(collection(db, 'products'));
+            allProducts = snap.docs.map(d => d.data());
         }
 
         function renderProducts(products) {
@@ -159,11 +249,7 @@
                 card.className = 'card';
                 
                 const imgUrl = p.imageUrl ? p.imageUrl : ''; 
-                // Ensure relative path works for local static file
-                // p.imageUrl from migrate.js is like `/products/code.jpg`.
-                // For static site in subfolder, if deployed at root, it works. 
-                // If local file open, it needs relative `products/code.jpg` (no leading slash).
-                // Let's fix leading slash if using file protocol.
+                // Ensure relative path works
                 const cleanImg = imgUrl.startsWith('/') ? '.' + imgUrl : imgUrl;
 
                 card.innerHTML = `
@@ -175,8 +261,11 @@
                         <div class="card-title" title="${p.name}">${p.name}</div>
                         <div class="card-footer">
                             <div class="card-code">${p.vendorCode}</div>
-                            <div class="card-price">${p.price ? p.price.toLocaleString('ru-RU') + ' ₽' : 'По запросу'}</div>
+                            <div class="card-price">${p.price ? p.price.toLocaleString('ru-RU') + ' &#8381;' : 'По запросу'}</div>
                         </div>
+                        <button onclick="window.addToCart('${p.vendorCode}')" style="margin-top:0.5rem; width:100%; border:1px solid var(--primary); background:white; color:var(--primary); padding:0.5rem; border-radius:0.25rem; cursor:pointer; font-weight:bold; transition:all 0.2s;" onmouseover="this.style.background='var(--primary)';this.style.color='white'" onmouseout="this.style.background='white';this.style.color='var(--primary)'">
+                            В корзину
+                        </button>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -200,9 +289,23 @@
             renderProducts(filtered);
         }
 
-        searchInput.addEventListener('input', filter);
-        brandFilter.addEventListener('change', filter);
+        searchInput.addEventListener('input', () => { filter() });
+        brandFilter.addEventListener('change', () => { filter() });
+        
+        // Mode Toggles
+        document.querySelectorAll('.toggle-btn[data-mode]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                // Could implement grouping logic here, but for now just filter reset?
+                if (e.target.dataset.mode === 'all') {
+                     brandFilter.value = '';
+                     filter();
+                }
+            });
+        });
 
     </script>
+
 </body>
 </html>

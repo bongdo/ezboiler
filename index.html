@@ -53,6 +53,9 @@
 
         <!-- Transparent Toggle Bar -->
         <div class="sub-header" id="subHeader">
+            <!-- Left Spacer (Shrinks when filters appear to move toggle left) -->
+            <div class="spacer" id="spacerLeft"></div>
+
             <div class="mode-toggle">
                 <button class="toggle-btn active" data-mode="brands" onclick="setMode('brands')">
                     По брендам и моделям
@@ -62,7 +65,7 @@
                 </button>
             </div>
             
-            <div id="filtersPanel" class="filters-row" style="display:none;">
+            <div id="filtersPanel" class="filters-row">
                 <select id="filterBrand" class="filter-select" onchange="runFilter()">
                     <option value="">Все бренды</option>
                 </select>
@@ -77,6 +80,9 @@
                     <option value="used">Б/У</option>
                 </select>
             </div>
+
+            <!-- Right Spacer (Stays or grows) -->
+            <div class="spacer" id="spacerRight"></div>
         </div>
     </div>
 
@@ -219,7 +225,7 @@
             // Toggle Button State
             document.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
             
-            // Animate Slider (via class on parent)
+            // Animate Slider
             const toggleContainer = document.querySelector('.mode-toggle');
             if (mode === 'types') {
                 toggleContainer.classList.add('show-types');
@@ -227,10 +233,10 @@
                 toggleContainer.classList.remove('show-types');
             }
             
-            // Reset filters view state
-            filtersPanel.style.display = 'none';
-            subHeader.classList.remove('left-aligned');
+            // Hide Filters & Reset Position (Center Toggle)
+            resetFiltersAnimation();
 
+            // Sidebar Visibility Logic
             if (mode === 'brands') {
                 sidebar.classList.remove('hidden');
                 if(state.brand) selectBrand(state.brand);
@@ -243,13 +249,34 @@
             }
         };
 
+        function resetFiltersAnimation() {
+            filtersPanel.classList.remove('active'); // Collapse filters
+            // filtersPanel.style.display = 'none'; // Allow transition first? No, CSS handles it.
+            // Reset Spacers to center
+            document.getElementById('spacerLeft').classList.remove('collapsed');
+            // Remove left-aligned class if used
+            subHeader.classList.remove('left-aligned');
+        }
+
+        function activateFiltersAnimation() {
+            // filtersPanel.style.display = 'flex';
+            setTimeout(() => filtersPanel.classList.add('active'), 10); // Trigger transition
+            document.getElementById('spacerLeft').classList.add('collapsed');
+            // subHeader.classList.add('left-aligned');
+        }
+
         window.selectBrand = (brandName) => {
             state.brand = brandName;
-            state.mode = 'brands';
+            state.mode = 'brands'; // Ensure mode is set
             
+            // Sidebar ALWAYS visible in Brands mode
             sidebar.classList.remove('hidden');
-            filtersPanel.style.display = 'none';
-            subHeader.classList.remove('left-aligned');
+            
+            // When selecting a brand (navigating to brand page), clear filters if we were viewing products
+            // Or should we?
+            // "SelectBrand" renders the boiler list. It is NOT the product list with filters.
+            // So hide filters.
+            resetFiltersAnimation();
 
             document.querySelectorAll('.brand-list-item').forEach(el => 
                 el.classList.toggle('active', el.innerText.includes(brandName))
@@ -309,11 +336,24 @@
             if(criteria.brand) state.brand = criteria.brand;
 
             // UI Updates
-            sidebar.classList.add('hidden'); // Hide sidebar
+            // UI Updates
             
-            // Show Filters & Left Align
-            filtersPanel.style.display = 'flex';
-            subHeader.classList.add('left-aligned');
+            // Sidebar Logic: 
+            // - If mode is 'brands', keep sidebar visible.
+            // - If mode is 'types' (implied by type criteria without brand?), hide execution handled in setMode/init?
+            // User: "Sidebar... visible ONLY when .mode-toggle is 'By Brands'".
+            // If calling showProducts from Type view, mode is 'types', so sidebar is hidden.
+            // If calling showProducts from Brand view, mode is 'brands', so sidebar is VISIBLE.
+            // Existing code forced it hidden: `sidebar.classList.add('hidden');` -> REMOVE THIS.
+            
+            if (state.mode === 'brands') {
+                 sidebar.classList.remove('hidden');
+            } else {
+                 sidebar.classList.add('hidden');
+            }
+            
+            // Show Filters & Animate
+            activateFiltersAnimation();
             
             // Set Filter DOM matches if applicable
             if(state.brand) document.getElementById('filterBrand').value = state.brand;

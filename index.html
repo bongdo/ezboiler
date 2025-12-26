@@ -215,7 +215,17 @@
 
         window.setMode = (mode) => {
             state.mode = mode;
+            
+            // Toggle Button State
             document.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+            
+            // Animate Slider (via class on parent)
+            const toggleContainer = document.querySelector('.mode-toggle');
+            if (mode === 'types') {
+                toggleContainer.classList.add('show-types');
+            } else {
+                toggleContainer.classList.remove('show-types');
+            }
             
             // Reset filters view state
             filtersPanel.style.display = 'none';

@@ -12,46 +12,59 @@
     
     <!-- Sticky Header System -->
     <div class="sticky-container">
+    <div class="sticky-container">
         <div class="main-header-block">
+            <!-- Top Bar (Desktop Only) -->
+            <div class="top-bar desktop-only">
+                <div class="social-links-left">
+                    <a href="https://wa.me/79991234567" title="WhatsApp"><img src="images/whatsapp.svg" class="social-icon" alt="WA"></a>
+                    <a href="https://t.me/ezboiler" title="Telegram"><img src="images/telegram.svg" class="social-icon" alt="TG"></a>
+                    <a href="mailto:info@ezboiler.ru" title="Email"><img src="images/mail.svg" class="social-icon" alt="@"></a>
+                </div>
+                
+                <div class="nav-links-center">
+                    <a href="#" onclick="showCatalogAll()">Каталог</a>
+                    <a href="#">Промывка систем</a>
+                    <a href="#">Удаленное управление</a>
+                </div>
+
+                <div class="contact-info-right">
+                    <a href="https://yandex.ru/maps/-/CDGeJV3K" target="_blank" class="address-link">
+                        <img src="images/Yandex_Maps.png" alt="Map" style="width:24px;">
+                        <span>г. Казань, ул. Техническая, д. 17В, офис 208</span>
+                    </a>
+                </div>
+            </div>
+
             <!-- Main Header -->
             <header class="main-header">
-                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
-                    ☰
-                </button>
+                <!-- Burger (Mobile Only) -->
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+                
                 <a href="#" onclick="location.reload()" class="logo">
                      <img src="images/logo.svg" style="height:32px;">
                     <span style="color:black;">ezboiler</span>
                 </a>
                 
+                <!-- Search (Centered on Desktop) -->
                 <div class="search-bar">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Поиск по артикулу или названию...">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Поиск...">
+                    <button onclick="handleSearch(document.getElementById('searchInput').value)">🔍</button>
                 </div>
 
+                <!-- Actions (Desktop Only) -->
                 <div class="header-actions desktop-only">
-                    <button class="add-btn" onclick="openCallbackModal()" style="border-radius:2rem;">Заказать звонок</button>
+                    <button class="add-btn" onclick="openCallbackModal()" style="border-radius:2rem; padding: 0.5rem 1.5rem;">Заказать звонок</button>
                     <div class="cart-btn" id="cartBtn" onclick="openCart()">
                         🛒 <span class="cart-count">0</span>
                     </div>
                 </div>
-            </header>
 
-            <!-- Top Bar (Now Below Main Header) -->
-            <div class="top-bar desktop-only">
-                <div class="nav-links">
-                    <a href="#" onclick="showCatalogAll()">Каталог</a>
-                    <a href="#">Промывка систем</a>
-                    <a href="#">Удаленное управление</a>
+                <!-- Mobile Cart Icon (Visible on Mobile) -->
+                <div class="cart-btn mobile-only" onclick="openCart()" style="margin-left: auto; display: none;">
+                    🛒 <span class="cart-count">0</span>
                 </div>
-                <div class="social-links">
-                    <a href="https://yandex.com.tr/maps/-/CLcf7W3G" target="_blank" style="display:flex; align-items:center; gap:0.5rem; color:inherit;">
-                        <img src="images/Yandex_Maps.png" alt="Map" style="width:24px;">
-                         Г. Владимир, ул. Дзержинского, 9
-                    </a>
-                    <a href="#" title="WhatsApp"><img src="images/whatsapp.svg" class="social-icon" alt="WA"></a>
-                    <a href="#" title="Telegram"><img src="images/telegram.svg" class="social-icon" alt="TG"></a>
-                    <a href="mailto:info@ezboiler.ru" title="Email"><img src="images/mail.svg" class="social-icon" alt="@"></a>
-                </div>
-            </div>
+            </header>
 
             <!-- Mobile Menu Overlay -->
             <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="toggleMobileMenu(false)"></div>
@@ -61,11 +74,15 @@
                     <span class="close-btn" onclick="toggleMobileMenu(false)">&times;</span>
                 </div>
                 <div class="mobile-menu-content">
+                    <a href="#" onclick="showCatalogAll(); toggleMobileMenu(false);">Каталог</a>
+                    <a href="#">Промывка систем</a>
+                    <a href="#">Удаленное управление</a>
+                    <hr>
                     <a href="#" onclick="openCart(); toggleMobileMenu(false);">Корзина <span id="cartBadgeMobile">(0)</span></a>
                     <div style="margin: 1rem 0;">
                          <button class="add-btn" onclick="openCallbackModal()" style="width:100%;">Заказать звонок</button>
                     </div>
-                    <a href="https://yandex.com.tr/maps/-/CLcf7W3G" target="_blank">Адрес: Владимир, Дзержинского 9</a>
+                    <a href="https://yandex.ru/maps/-/CDGeJV3K" target="_blank">Адрес: Казань, Техническая 17В</a>
                     <div class="mobile-socials">
                         <a href="#">WhatsApp</a>
                         <a href="#">Telegram</a>

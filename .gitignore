@@ -1,61 +1,15 @@
-# System Files
-.DS_Store
-Thumbs.db
-.idea/
-.vscode/
-
-# Node / Javascript
 node_modules/
-npm-debug.log
-yarn-debug.log
-yarn-error.log
-.pnpm-debug.log
-
-# Next.js / React
-.next/
-out/
-build/
-dist/
-.turbo/
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-venv/
-.venv/
-env/
-
-# Go
-bin/
-
-# Environment Variables
+.DS_Store
+*.db
+*.log
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
-*.env
-
-# SQLite / Database
-*.db
-*.sqlite
-*.sqlite3
-
-# Logs
-*.log
-logs/
-
-# Temporary
-tmp/
-coverage/
-
-# Misc
-*.swp
-*.swo
-
-# Archives
-*.tar.gz
-*.zip
-*.rar
-*.7z
+.vscode/
+scripts/node_modules/
+scripts/service-account.json
+# Keep config.js for now? No, usually secrets.
+# But config.js contains API Key which is public for Firebase usually.
+# However, env.local was source.
+# Let's ignore it if we want to be safe, but for a public static site it MUST be committed or injected during build.
+# Since this is a static site repo for GH Pages, config.js MUST be committed.
+scripts/ezbioler-ru-firebase-adminsdk-fbsvc-eb54089863.json

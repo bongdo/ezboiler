@@ -237,15 +237,16 @@
             resetFiltersAnimation();
 
             // Sidebar Visibility Logic
+            const sb2 = document.getElementById('sidebar');
             if (mode === 'brands') {
-                sidebar.classList.remove('hidden');
+                if(sb2) sb2.classList.remove('hidden');
                 if(state.brand) selectBrand(state.brand);
                 else selectBrand('BAXI');
             } else if (mode === 'types') {
-                sidebar.classList.add('hidden');
+                if(sb2) sb2.classList.add('hidden');
                 renderTypesGrid();
             } else {
-                sidebar.classList.add('hidden');
+                if(sb2) sb2.classList.add('hidden');
             }
         };
 
@@ -269,11 +270,7 @@
             state.brand = brandName;
             state.mode = 'brands'; // Ensure mode is set
             
-            // Sidebar ALWAYS visible in Brands mode
-            sidebar.classList.remove('hidden');
-            
-            // When selecting a brand (navigating to brand page), clear filters if we were viewing products
-            // Or should we?
+            //sidebar.classList.remove('hidden');
             // "SelectBrand" renders the boiler list. It is NOT the product list with filters.
             // So hide filters.
             resetFiltersAnimation();
@@ -336,10 +333,12 @@
             if(criteria.brand) state.brand = criteria.brand;
 
             // UI Updates
+            
             // UI Updates
             
             // Sidebar Logic: Strict HIDE when viewing product list (per user request)
-            sidebar.classList.add('hidden');
+            const sb = document.getElementById('sidebar');
+            if(sb) sb.classList.add('hidden');
             
             // Show Filters & Animate
             activateFiltersAnimation();

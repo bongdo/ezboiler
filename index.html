@@ -3,102 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Запчасти для котлов | EzBoiler</title>
+    <title>EZBOILER - Запчасти для котлов</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Sticky Header Wrapper -->
+    <div class="sticky-header-wrapper">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="nav-links">
+                <a href="#">Каталог</a>
+                <a href="#">Промывка систем</a>
+                <a href="#">Удаленное управление</a>
+            </div>
+            <div class="social-links">
+                <span style="margin-right:1rem;">г. Владимир, ул. Гастелло 8А</span>
+                <a href="#" title="WhatsApp" style="font-weight:bold;">WA</a>
+                <a href="#" title="Telegram" style="font-weight:bold;">TG</a>
+                <a href="mailto:info@ezboiler.ru" title="Email" style="font-weight:bold;">@</a>
+            </div>
+        </div>
 
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <div class="container">
-            <span>г. Владимир, ул. Дзержинского, 9</span>
-            <div style="display: flex; gap: 1rem;">
-                <a href="#" style="color: white; text-decoration: none;">WhatsApp</a>
-                <a href="#" style="color: white; text-decoration: none;">Telegram</a>
-                <a href="mailto:info@ezboiler.ru" style="color: white; text-decoration: none;">Email</a>
+        <!-- Main Header -->
+        <header class="main-header">
+            <a href="/" class="logo">
+                <span style="color:black;">EZ</span>BOILER
+            </a>
+            
+            <div class="search-bar">
+                <input type="text" id="searchInput" class="search-input" placeholder="Поиск по артикулу или названию...">
+            </div>
+
+            <div class="header-actions">
+                <div class="cart-btn" id="cartBtn">
+                    🛒 <span class="cart-count">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mode Toggle -->
+        <div class="mode-toggle-container">
+            <div class="mode-toggle">
+                <button class="toggle-btn active" data-mode="brands" onclick="setMode('brands')">
+                    по брендам и моделям
+                </button>
+                <button class="toggle-btn" data-mode="types" onclick="setMode('types')">
+                    по типу запчасти
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Main Header -->
-    <header>
-        <div class="main-header">
-            <div class="container">
-                <a href="/" class="logo">EzBoiler</a>
-                
-                <div class="search-bar">
-                    <input type="text" id="searchInput" placeholder="Поиск по артикулу или названию...">
-                    <span class="search-icon">🔍</span>
-                </div>
-
-                <div class="cart-icon" id="cartBtn">
-                    🛒
-                    <span class="cart-count">0</span>
-                </div>
+    <!-- Main App Layout -->
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <h3 id="sidebarTitle">Бренды</h3>
+            <div id="sidebarContent" class="brand-list">
+                <!-- Injected via JS -->
+                 <div class="loader" style="font-size:1rem; padding:1rem;">Loading...</div>
             </div>
-        </div>
-    </header>
+        </aside>
 
-    <!-- Main Content -->
-    <main class="container">
-        
-        <!-- Controls -->
-        <div class="controls">
-            <div class="toggle-group" id="viewModeToggle">
-                <button class="toggle-btn active" data-mode="all">Все товары</button>
-                <button class="toggle-btn" data-mode="brands">По брендам</button>
-                <button class="toggle-btn" data-mode="types">По типу</button>
-            </div>
-            
-            <select id="brandFilter" class="toggle-btn" style="border: 1px solid #e5e5e5;">
-                <option value="">Все бренды</option>
-            </select>
-        </div>
-
-        <div id="contentGrid" class="grid">
-            <!-- Content will be injected here -->
-             <div class="loader">Загрузка товаров...</div>
-        </div>
-
-    </main>
+        <!-- Main Content Area -->
+        <main class="main-content" id="mainContent">
+            <!-- Dynamic Views: Brand Grid, Boiler Grid, or Product List -->
+             <div class="loader" style="margin-top:2rem;">Загрузка данных...</div>
+        </main>
+    </div>
 
     <!-- Footer -->
     <footer>
-        <div class="container footer-grid">
+        <div class="footer-content">
             <div class="footer-col">
-                <h3>КОНТАКТЫ</h3>
-                <a href="tel:+74922552288" class="contact-highlight">+7 (4922) 55-22-88</a>
-                <a href="tel:+79913210733" class="contact-highlight">+7 (991) 321-07-33</a>
-                <p style="margin-top: 1rem;">г. Владимир,<br>ул. Дзержинского, 9</p>
-                <div style="margin-top: 1rem;">
-                    <a href="#">WhatsApp</a>
-                    <a href="#">Telegram</a>
-                    <a href="mailto:info@ezboiler.ru">Email</a>
-                </div>
+                <h4>Контакты</h4>
+                <ul>
+                    <li>+7 (4922) 55-22-88</li>
+                    <li>+7 (991) 321-07-33</li>
+                    <li>г. Владимир, ул. Гастелло 8А</li>
+                </ul>
             </div>
-
             <div class="footer-col">
-                <h3>ИНФОРМАЦИЯ</h3>
-                <a href="#">Условия доставки</a>
-                <a href="#">Правила оформления</a>
-                <a href="#">Возврат</a>
-                <a href="#">Контакты</a>
+                <h4>Информация</h4>
+                <ul>
+                    <li><a href="#">Доставка и оплата</a></li>
+                    <li><a href="#">Правила покупки</a></li>
+                    <li><a href="#">Возврат</a></li>
+                    <li><a href="#">Контакты</a></li>
+                </ul>
             </div>
-
             <div class="footer-col">
-                <h3>КАТАЛОГ</h3>
-                <a href="#">Запчасти для котлов</a>
-                <a href="#">Промывка систем</a>
-                <a href="#">Удаленное управление</a>
+                <h4>Каталог</h4>
+                <ul>
+                    <li><a href="#">Запчасти</a></li>
+                    <li><a href="#">Промывка</a></li>
+                    <li><a href="#">Управление</a></li>
+                </ul>
             </div>
         </div>
     </footer>
 
-
     <!-- Cart Modal -->
-    <div id="cartModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;">
-        <div style="background:white; max-width:600px; margin:2rem auto; padding:2rem; border-radius:0.5rem; max-height:90vh; overflow-y:auto;">
+    <div id="cartModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000;">
+        <div style="background:white; max-width:600px; margin:5rem auto; padding:2rem; border-radius:0.5rem; max-height:80vh; overflow-y:auto; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
                 <h2 style="font-size:1.5rem; font-weight:bold;">Корзина</h2>
                 <button onclick="document.getElementById('cartModal').style.display='none'" style="border:none; background:none; font-size:1.5rem; cursor:pointer;">&times;</button>
@@ -111,20 +119,294 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
+    <!-- Application Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import firebaseConfig from './config.js';
 
+        // Initialize Firebase
         let db;
-        let allProducts = [];
-        let brands = [];
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+        } catch (e) {
+            console.error(e);
+            alert('Ошибка подключения к базе данных');
+        }
+
+        // Global State
+        const state = {
+            mode: 'brands', // 'brands' or 'types'
+            brands: [],
+            boilers: [],
+            partTypes: [],
+            products: [],
+            selectedBrandId: null,
+            selectedBoilerId: null,
+            selectedTypeId: null,
+            searchQuery: ''
+        };
+
         let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-        // Expose cart functions global
+        // --- Data Fetching ---
+        async function loadData() {
+            try {
+                // Parallel fetch for speed
+                const [brandsSnap, boilersSnap, typesSnap, productsSnap] = await Promise.all([
+                    getDocs(collection(db, 'brands')),
+                    getDocs(collection(db, 'boilers')),
+                    getDocs(collection(db, 'part_types')),
+                    getDocs(collection(db, 'products')) // Warning: Large collection
+                ]);
+
+                // Parse IDs correctly (handling numeric IDs from SQLite migration)
+                state.brands = brandsSnap.docs.map(d => ({id: parseInt(d.id) || d.id, ...d.data()}))
+                    .sort((a,b) => a.name.localeCompare(b.name));
+                
+                state.boilers = boilersSnap.docs.map(d => ({id: parseInt(d.id) || d.id, ...d.data()}));
+                
+                state.partTypes = typesSnap.docs.map(d => ({id: parseInt(d.id) || d.id, ...d.data()}))
+                                    .sort((a,b) => a.name.localeCompare(b.name));
+                
+                state.products = productsSnap.docs.map(d => d.data());
+
+                console.log('Data loaded:', state);
+                
+                // Initial Render
+                renderSidebar();
+                renderMain();
+                updateCart();
+
+            } catch (e) {
+                console.error("Load Error:", e);
+                document.getElementById('mainContent').innerHTML = `<div class="loader" style="color:red">Ошибка загрузки данных: ${e.message}</div>`;
+            }
+        }
+
+        // --- Render Functions ---
+
+        // 1. Sidebar Render
+        function renderSidebar() {
+            const container = document.getElementById('sidebarContent');
+            const title = document.getElementById('sidebarTitle');
+            container.innerHTML = '';
+
+            if (state.mode === 'brands') {
+                title.textContent = 'Бренды';
+                state.brands.forEach(brand => {
+                    const el = document.createElement('div');
+                    el.className = `brand-item ${state.selectedBrandId == brand.id ? 'active' : ''}`;
+                    // Placeholder for logo if missing, or use text
+                    el.innerHTML = `<span>${brand.name}</span>`;
+                    el.onclick = () => selectBrand(brand.id);
+                    container.appendChild(el);
+                });
+            } else {
+                title.textContent = 'Категории';
+                state.partTypes.forEach(type => {
+                     const el = document.createElement('div');
+                    el.className = `brand-item ${state.selectedTypeId == type.id ? 'active' : ''}`;
+                    el.innerHTML = `<span>${type.name}</span>`;
+                    el.onclick = () => selectType(type.id);
+                    container.appendChild(el);
+                });
+            }
+        }
+
+        // 2. Main Content Render
+        function renderMain() {
+            const container = document.getElementById('mainContent');
+            container.innerHTML = '';
+
+            // CASE: Search Active?
+            if (state.searchQuery.length > 2) {
+                renderSearchResults(container);
+                return;
+            }
+
+            // CASE: Mode = Brands
+            if (state.mode === 'brands') {
+                if (!state.selectedBrandId) {
+                    container.innerHTML = '<div class="loader">Выберите бренд из списка слева</div>';
+                    // Auto-select first brand?
+                    if (state.brands.length > 0 && !isMobile()) selectBrand(state.brands[0].id);
+                    return;
+                }
+
+                if (state.selectedBoilerId) {
+                     // Show Products for Boiler
+                     renderProductsForBoiler(container);
+                } else {
+                    // Show Boilers Grid for Brand
+                    renderBoilersGrid(container);
+                }
+            } 
+            // CASE: Mode = Types
+            else {
+                 if (!state.selectedTypeId) {
+                      container.innerHTML = '<div class="loader">Выберите категорию</div>';
+                      if (state.partTypes.length > 0 && !isMobile()) selectType(state.partTypes[0].id);
+                     return;
+                 }
+                 renderProductsForType(container);
+            }
+        }
+        
+        function isMobile() { return window.innerWidth < 800; }
+
+        function renderBoilersGrid(container) {
+            const brand = state.brands.find(b => b.id == state.selectedBrandId);
+            
+            const header = document.createElement('div');
+            header.className = 'view-header';
+            header.innerHTML = `<h2>Бойлеры ${brand ? brand.name : ''}</h2>`;
+            container.appendChild(header);
+
+            const grid = document.createElement('div');
+            grid.className = 'grid-boilers';
+
+            // Filter boilers by brand
+            const boilers = state.boilers.filter(b => b.brand_id == state.selectedBrandId); // assuming brand_id exists
+
+            if (boilers.length === 0) {
+                 grid.innerHTML = '<div>Нет моделей котлов для этого бренда</div>';
+            } else {
+                boilers.forEach(b => {
+                    const card = document.createElement('div');
+                    card.className = 'boiler-card';
+                    card.innerHTML = `
+                        <div class="boiler-icon">🔥</div>
+                        <div class="boiler-name">${b.name}</div>
+                    `;
+                    card.onclick = () => selectBoiler(b.id);
+                    grid.appendChild(card);
+                });
+            }
+            container.appendChild(grid);
+        }
+
+        function renderProductsForBoiler(container) {
+             const boiler = state.boilers.find(b => b.id == state.selectedBoilerId);
+             
+             const header = document.createElement('div');
+             header.className = 'view-header';
+             header.style.display = 'flex';
+             header.style.justifyContent = 'space-between';
+             header.innerHTML = `
+                <div style="display:flex; align-items:center; gap:1rem;">
+                    <div class="back-btn" onclick="selectBoiler(null)">← Назад</div>
+                    <h2>Запчасти для ${boiler ? boiler.name : ''}</h2>
+                </div>
+             `;
+             container.appendChild(header);
+
+             // Find products compatible with this boiler
+             // Data structure: product.compatibleBoilerIds (array of ints)
+             const products = state.products.filter(p => 
+                p.compatibleBoilerIds && p.compatibleBoilerIds.includes(parseInt(state.selectedBoilerId))
+             );
+
+             renderProductGrid(container, products);
+        }
+
+        function renderProductsForType(container) {
+             const type = state.partTypes.find(t => t.id == state.selectedTypeId);
+             
+             const header = document.createElement('div');
+             header.className = 'view-header';
+             header.innerHTML = `<h2>${type ? type.name : ''}</h2>`;
+             container.appendChild(header);
+            
+            // Filter by partTypeId
+            // We use loose comparison == for ID in case of string vs int mismatch
+            const products = state.products.filter(p => p.partTypeId == state.selectedTypeId);
+            renderProductGrid(container, products);
+        }
+
+        function renderSearchResults(container) {
+            const q = state.searchQuery.toLowerCase();
+            const products = state.products.filter(p => 
+                p.name.toLowerCase().includes(q) || 
+                p.vendorCode.toLowerCase().includes(q)
+            );
+            
+            const header = document.createElement('div');
+            header.className = 'view-header';
+            header.innerHTML = `<h2>Результаты поиска: "${state.searchQuery}" (${products.length})</h2>`;
+            container.appendChild(header);
+            
+            renderProductGrid(container, products);
+        }
+
+        function renderProductGrid(container, products) {
+            const grid = document.createElement('div');
+            grid.className = 'grid-products';
+            
+            if (products.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:2rem; color:#888;">Товары не найдены</div>';
+            } else {
+                products.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    
+                    const cleanImg = p.imageUrl && p.imageUrl.startsWith('/') ? '.' + p.imageUrl : p.imageUrl;
+                    
+                    card.innerHTML = `
+                        <div class="product-badge">${p.partTypeName || ''}</div>
+                        <div class="product-img">
+                            ${p.imageUrl ? `<img src="${cleanImg}" alt="${p.name}" loading="lazy">` : '<div style="font-size:3rem; color:#e5e7eb;">📷</div>'}
+                        </div>
+                        <div class="product-body">
+                            <div class="product-title" title="${p.name}">${p.name}</div>
+                            <div class="product-meta">${p.vendorCode}</div>
+                            <div class="product-footer">
+                                <div class="product-price">${p.price ? p.price.toLocaleString('ru-RU') + ' ₽' : 'По запросу'}</div>
+                                <button class="add-btn" onclick="window.addToCart('${p.vendorCode}')">В корзину</button>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+            container.appendChild(grid);
+        }
+
+        // --- Interactive State Mutations ---
+
+        window.setMode = (mode) => {
+            state.mode = mode;
+            state.selectedBoilerId = null; // Reset selection
+            // Update Toggle UI
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            renderSidebar();
+            renderMain();
+        };
+
+        window.selectBrand = (id) => {
+            state.selectedBrandId = id;
+            state.selectedBoilerId = null; // Reset boiler when brand changes
+            renderSidebar(); // Update active state
+            renderMain();
+        };
+
+        window.selectBoiler = (id) => {
+            state.selectedBoilerId = id;
+            renderMain();
+        };
+
+        window.selectType = (id) => {
+            state.selectedTypeId = id;
+            renderSidebar();
+            renderMain();
+        };
+
+        // --- Cart Logic (Ported) ---
         window.addToCart = (vendorCode) => {
-            const product = allProducts.find(p => p.vendorCode === vendorCode);
+             const product = state.products.find(p => p.vendorCode === vendorCode);
             if (!product) return;
             
             const existing = cart.find(i => i.vendorCode === vendorCode);
@@ -134,13 +416,13 @@
                 cart.push({...product, qty: 1});
             }
             updateCart();
-            alert('Товар добавлен в корзину');
+            // Optional: Show toast
         };
 
         window.removeFromCart = (vendorCode) => {
             cart = cart.filter(i => i.vendorCode !== vendorCode);
             updateCart();
-            renderCart();
+            renderCartModal();
         };
 
         function updateCart() {
@@ -149,19 +431,16 @@
             document.querySelector('.cart-count').textContent = count;
         }
 
-        function renderCart() {
+        function renderCartModal() {
             const container = document.getElementById('cartItems');
-            if (cart.length === 0) {
-                container.innerHTML = '<p>Корзина пуста</p>';
-                document.getElementById('cartTotal').textContent = '0';
-                return;
-            }
-            
             let total = 0;
-            container.innerHTML = cart.map(item => {
-                const itemTotal = (item.price || 0) * item.qty;
-                total += itemTotal;
-                return `
+            if (cart.length === 0) {
+                 container.innerHTML = 'Корзина пуста';
+            } else {
+                container.innerHTML = cart.map(item => {
+                    const absTotal = (item.price || 0) * item.qty;
+                    total += absTotal;
+                    return `
                     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding:0.5rem 0;">
                         <div>
                             <div style="font-weight:bold;">${item.name}</div>
@@ -171,141 +450,26 @@
                             <span>${item.qty} шт x ${item.price} &#8381;</span>
                              <button onclick="window.removeFromCart('${item.vendorCode}')" style="color:red; border:none; background:none; cursor:pointer;">&times;</button>
                         </div>
-                    </div>
-                `;
-            }).join('');
+                    </div>`;
+                }).join('');
+            }
             document.getElementById('cartTotal').textContent = total.toLocaleString('ru-RU');
         }
 
         document.getElementById('cartBtn').addEventListener('click', () => {
-            renderCart();
+            renderCartModal();
             document.getElementById('cartModal').style.display = 'block';
         });
-        
-        // Init App with better error handling
-        try {
-            console.log("Initializing Firebase...");
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            init();
-        } catch (e) {
-            console.error("Firebase init failed:", e);
-            document.getElementById('contentGrid').innerHTML = `<div class="loader" style="color: red;">
-                <h3>Ошибка подключения</h3>
-                <p>${e.message}</p>
-                <p>Проверьте консоль браузера (F12) для деталей.</p>
-            </div>`;
-        }
 
-        async function init() {
-            try {
-                await Promise.all([fetchBrands(), fetchProducts()]);
-                renderProducts(allProducts);
-                updateCart(); // Init cart count
-                console.log("Data loaded successfully");
-            } catch (err) {
-                 console.error("Data load error:", err);
-                 document.getElementById('contentGrid').innerHTML = `<div class="loader" style="color: orange;">
-                    <h3>Ошибка загрузки данных</h3>
-                     <p>Возможно, заблокирован доступ к базе данных.</p>
-                     <p>Попробуйте обновить страницу.</p>
-                     <p>Детали: ${err.message}</p>
-                </div>`;
-            }
-        }
-
-        async function fetchBrands() {
-            const snap = await getDocs(collection(db, 'brands'));
-            brands = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => a.name.localeCompare(b.name));
-            
-            const select = document.getElementById('brandFilter');
-            brands.forEach(b => {
-                const opt = document.createElement('option');
-                opt.value = b.id;
-                opt.textContent = b.name;
-                select.appendChild(opt);
-            });
-        }
-
-        async function fetchProducts() {
-            const snap = await getDocs(collection(db, 'products'));
-            allProducts = snap.docs.map(d => d.data());
-        }
-
-        function renderProducts(products) {
-            const grid = document.getElementById('contentGrid');
-            grid.innerHTML = '';
-
-            if (products.length === 0) {
-                grid.innerHTML = '<div class="loader">Товары не найдены</div>';
-                return;
-            }
-
-            // Limit render for performance? 50 items max for now
-            const page = products.slice(0, 100);
-
-            page.forEach(p => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                
-                const imgUrl = p.imageUrl ? p.imageUrl : ''; 
-                // Ensure relative path works
-                const cleanImg = imgUrl.startsWith('/') ? '.' + imgUrl : imgUrl;
-
-                card.innerHTML = `
-                    <div class="card-img">
-                        ${p.imageUrl ? `<img src="${cleanImg}" alt="${p.name}" loading="lazy">` : '<div style="font-size:2rem; color:#d1d5db;">📷</div>'}
-                    </div>
-                    <div class="card-body">
-                        <div class="card-badge">${p.partTypeName}</div>
-                        <div class="card-title" title="${p.name}">${p.name}</div>
-                        <div class="card-footer">
-                            <div class="card-code">${p.vendorCode}</div>
-                            <div class="card-price">${p.price ? p.price.toLocaleString('ru-RU') + ' &#8381;' : 'По запросу'}</div>
-                        </div>
-                        <button onclick="window.addToCart('${p.vendorCode}')" style="margin-top:0.5rem; width:100%; border:1px solid var(--primary); background:white; color:var(--primary); padding:0.5rem; border-radius:0.25rem; cursor:pointer; font-weight:bold; transition:all 0.2s;" onmouseover="this.style.background='var(--primary)';this.style.color='white'" onmouseout="this.style.background='white';this.style.color='var(--primary)'">
-                            В корзину
-                        </button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        // Filtering Logic
-        const searchInput = document.getElementById('searchInput');
-        const brandFilter = document.getElementById('brandFilter');
-
-        function filter() {
-            const q = searchInput.value.toLowerCase();
-            const b = brandFilter.value;
-
-            const filtered = allProducts.filter(p => {
-                const matchText = p.name.toLowerCase().includes(q) || p.vendorCode.toLowerCase().includes(q);
-                const matchBrand = b ? p.compatibleBrandIds.includes(parseInt(b)) : true;
-                return matchText && matchBrand;
-            });
-
-            renderProducts(filtered);
-        }
-
-        searchInput.addEventListener('input', () => { filter() });
-        brandFilter.addEventListener('change', () => { filter() });
-        
-        // Mode Toggles
-        document.querySelectorAll('.toggle-btn[data-mode]').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                // Could implement grouping logic here, but for now just filter reset?
-                if (e.target.dataset.mode === 'all') {
-                     brandFilter.value = '';
-                     filter();
-                }
-            });
+        // --- Search ---
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            state.searchQuery = e.target.value;
+            renderMain();
         });
 
-    </script>
+        // Init
+        loadData();
 
+    </script>
 </body>
 </html>

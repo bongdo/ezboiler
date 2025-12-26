@@ -1,10 +1,11 @@
 const firebaseConfig = {
-    apiKey: "...",
-    authDomain: "...",
-    projectId: "...",
-    storageBucket: "...",
-    messagingSenderId: "...",
-    appId: "..."
+  apiKey: "AIzaSyCagZ1Cp8ylQOwHGINdce-1Tf5VDwlkszM",
+  authDomain: "ezbioler-ru.firebaseapp.com",
+  databaseURL: "https://ezbioler-ru-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "ezbioler-ru",
+  storageBucket: "ezbioler-ru.firebasestorage.app",
+  messagingSenderId: "615257263042",
+  appId: "1:615257263042:web:c11b626dfac771176c645b"
 };
 
 export default firebaseConfig;

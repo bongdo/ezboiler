@@ -209,10 +209,11 @@
             container.innerHTML = '';
             DATA.brands.forEach(b => {
                 const nav = document.createElement('div');
-                nav.className = `brand-list-item`;
+                nav.className = `brand-tile`;
+                // Image only, fallback gracefully? 
+                // Using .toLowerCase() for image names is safer usually, but keeping as is per existing pattern
                 nav.innerHTML = `
-                    <img src="images/${b.name}.png" onerror="this.style.display='none'" class="brand-icon-sm">
-                    <span>${b.name}</span>
+                    <img src="images/${b.name}.png" alt="${b.name}" onerror="this.parentElement.innerHTML='<span style=\'font-weight:bold; font-size:0.9rem;\'>${b.name}</span>'">
                 `;
                 nav.onclick = () => selectBrand(b.name);
                 container.appendChild(nav);
@@ -275,8 +276,9 @@
             // So hide filters.
             resetFiltersAnimation();
 
-            document.querySelectorAll('.brand-list-item').forEach(el => 
-                el.classList.toggle('active', el.innerText.includes(brandName))
+            document.querySelectorAll('.brand-tile').forEach(el => 
+                // Check alt text of image or text content fallback
+                el.classList.toggle('active', el.innerText.includes(brandName) || el.querySelector('img')?.alt === brandName)
             );
 
             const brandData = DATA.brands.find(b => b.name === brandName);

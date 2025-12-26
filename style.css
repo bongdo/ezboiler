@@ -593,7 +593,7 @@ footer {
         padding: 1rem;
     }
 
-    /* Horizontal Rolling Sidebar */
+    /* Horizontal Rolling Sidebar -> converted to GRID 2 cols */
     .sidebar {
         width: 100%;
         top: 70px; /* Below sticky header approx */
@@ -601,41 +601,29 @@ footer {
         background: var(--bg-light);
         margin-bottom: 1rem;
         border-right: none;
-        border-bottom: 1px solid #e5e7eb;
+        border-bottom: none; /* No border needed if tiles are separated */
         
-        /* Flex Row */
-        display: flex;
-        flex-direction: row;
-        overflow-x: auto;
-        white-space: nowrap;
-        gap: 0.5rem;
+        /* Reset Flex/Scroll */
+        display: block; 
+        overflow-x: visible;
+        white-space: normal;
         padding-bottom: 0.5rem;
     }
 
-    .brand-list-item {
-        flex: 0 0 auto;
-        border: 1px solid #e5e7eb;
-        border-radius: 2rem;
-        padding: 0.5rem 1rem;
-        background: white;
+    #sidebarContent {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+        padding: 0 0.5rem;
     }
-    
-    .brand-list-item:hover {
-        background: #fff7ed;
-    }
-    
-    .brand-list-item h3 {
-        display: none; /* Hide 'Бренды' title if inside sidebar? Title is h3 before div. */
+
+    .brand-tile {
+        height: 70px; /* Slightly smaller on mobile */
     }
     
     /* Hide the title 'Бренды' specifically */
     .sidebar h3 {
         display: none;
-    }
-
-    #sidebarContent {
-        display: flex;
-        gap: 0.5rem;
     }
 
     /* Grid layout */

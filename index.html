@@ -11,7 +11,15 @@
 <body>
     
     <!-- Sticky Header System -->
-    
+    <!-- Nav Drawer -->
+    <div id="mobileNav" class="nav-drawer">
+        <h2 style="font-size:1.5rem; margin-bottom:1rem; font-weight:800;">Меню</h2>
+        <a href="#" onclick="showCatalogAll(); toggleSidebar(false)">Каталог</a>
+        <a href="#">Промывка систем</a>
+        <a href="#">Удаленное управление</a>
+        <a href="#" onclick="openCallbackModal(); toggleSidebar(false)">Заказать звонок</a>
+    </div>
+
     <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" onclick="toggleSidebar(false)"></div>
 
@@ -38,6 +46,20 @@
                 </div>
 
                 <div class="header-actions">
+                    <!-- Contact Block (Desktop/Mobile) -->
+                    <div class="header-contact-block" style="display:flex; align-items:center; gap:1rem; margin-right:1rem;">
+                        <a href="https://yandex.com.tr/maps/-/CLcf7W3G" target="_blank" title="г. Владимир, ул. Дзержинского, 9">
+                            <img src="images/Yandex_Maps.png" style="width:24px; vertical-align:middle;">
+                            <span class="header-contact-text" style="font-size:0.9rem; margin-left:0.5rem; color:var(--text-gray);">г. Владимир</span>
+                        </a>
+                        <a href="#" title="WhatsApp: +74922552288">
+                            <img src="images/whatsapp.svg" class="social-icon">
+                        </a>
+                        <a href="#" title="Telegram: @boilervladimir">
+                            <img src="images/telegram.svg" class="social-icon">
+                        </a>
+                    </div>
+
                     <button class="add-btn" onclick="openCallbackModal()" style="border-radius:2rem;">Заказать звонок</button>
                     <div class="cart-btn" id="cartBtn">
                         🛒 <span class="cart-count">0</span>
@@ -204,10 +226,11 @@
         const filtersPanel = document.getElementById('filtersPanel');
         const subHeader = document.getElementById('subHeader');
 
-        // Sidebar Toggle Logic
+        // Sidebar Toggle Logic (Now toggles Nav Drawer)
         window.toggleSidebar = (show) => {
             state.sidebarOpen = show;
-            sidebar.classList.toggle('open', show);
+            const nav = document.getElementById('mobileNav');
+            nav.classList.toggle('open', show);
             document.querySelector('.sidebar-overlay').classList.toggle('visible', show);
         };
 
@@ -226,21 +249,8 @@
 
         function renderSidebar() {
             const container = document.getElementById('sidebarContent');
-            container.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                   <h3 style="padding:1rem;">Бренды</h3>
-                   <!-- Mobile Close Button -->
-                   <button onclick="toggleSidebar(false)" style="padding:0.5rem; background:none; border:none; font-size:1.5rem; cursor:pointer;" class="mobile-only">&times;</button>
-                </div>
-            `;
-            
-            // Add style for mobile-only button if not in CSS
-            if(!document.getElementById('mobile-style-fix')) {
-               const s = document.createElement('style');
-               s.id = 'mobile-style-fix';
-               s.innerHTML = '@media(min-width:801px){ .mobile-only { display:none!important; } }';
-               document.head.appendChild(s);
-            }
+            container.innerHTML = ''; // Fixed: Desktop title stays in .sidebar HTML
+
 
             DATA.brands.forEach(b => {
                 const nav = document.createElement('div');

@@ -76,7 +76,7 @@
                 </div>
                 <div class="social-links">
                     <a href="https://yandex.com.tr/maps/-/CLcf7W3G" target="_blank" style="display:flex; align-items:center; gap:0.5rem; color:inherit;">
-                        <img src="images/logo.svg" alt="Map" style="width:16px;">
+                        <img src="images/Yandex_Maps.png" alt="Map" style="width:16px;">
                          Г. Владимир, ул. Дзержинского, 9
                     </a>
                     <a href="#" title="WhatsApp"><img src="images/whatsapp.svg" class="social-icon" alt="WA"></a>
@@ -343,8 +343,16 @@
                     card.onclick = () => showProducts({boiler: m, brand: brandName});
                     grid.appendChild(card);
                 });
+                });
                 main.appendChild(grid);
             }
+            
+            // Smooth Scroll to Top of Grid (with offset for sticky header)
+            setTimeout(() => {
+                const yOffset = -180; // Approximate header height + padding
+                const y = main.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                window.scrollTo({top: y, behavior: 'smooth'});
+            }, 100);
         };
 
         function renderTypesGrid() {

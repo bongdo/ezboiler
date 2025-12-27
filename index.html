@@ -27,7 +27,7 @@
     <div class="sticky-container">
         <div class="main-header-block">
             <!-- Main Header (Now First) -->
-            <!-- Main Header (Now First) -->
+            <!-- Main Header -->
             <header class="main-header">
                 <div style="display:flex; align-items:center;">
                     <button class="mobile-menu-btn" onclick="toggleSidebar(true)">
@@ -37,7 +37,7 @@
                     </button>
                     <a href="#" onclick="location.reload()" class="logo">
                          <img src="images/logo.svg" style="height:32px;">
-                        <span style="color:black;">EZ</span>BOILER
+                        <span style="color:black;">EZBOILER
                     </a>
                 </div>
                 
@@ -46,7 +46,7 @@
                 </div>
 
                 <div class="header-actions">
-                    <!-- Contact Block (Desktop/Mobile) -->
+                    <!-- Contact Block -->
                     <div class="header-contact-block">
                         <a href="https://yandex.com.tr/maps/-/CLcf7W3G" target="_blank" title="г. Владимир, ул. Дзержинского, 9">
                             <img src="images/Yandex_Maps.png" style="width:24px; vertical-align:middle;">
@@ -67,7 +67,7 @@
                 </div>
             </header>
 
-            <!-- Top Bar (Now Second) -->
+            <!-- Top Bar -->
             <div class="top-bar">
                 <div class="nav-links">
                     <a href="#" onclick="showCatalogAll()">Каталог</a>
@@ -226,7 +226,7 @@
         const filtersPanel = document.getElementById('filtersPanel');
         const subHeader = document.getElementById('subHeader');
 
-        // Sidebar Toggle Logic (Now toggles Nav Drawer)
+        // Toggle Mobile Navigation Drawer
         window.toggleSidebar = (show) => {
             state.sidebarOpen = show;
             const nav = document.getElementById('mobileNav');
@@ -390,7 +390,7 @@
             
             // UI Updates
             
-            // Sidebar Logic: Strict HIDE when viewing product list (per user request)
+            // Hide Sidebar when viewing product list
             const sb = document.getElementById('sidebar');
             if(sb) sb.classList.add('hidden');
             

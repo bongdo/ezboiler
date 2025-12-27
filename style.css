@@ -27,7 +27,7 @@ ul { list-style: none; padding: 0; margin: 0; }
 button { font-family: inherit; }
 
 /* Sticky Header System */
-/* Sticky Header System - DISABLED per user request */
+/* Sticky Header System */
 .sticky-container {
     position: relative; 
     top: auto;
@@ -510,7 +510,7 @@ button { font-family: inherit; }
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-    /* filter: grayscale(100%);  <-- Removed per user request */
+    /* filter: grayscale(100%); */
     /* opacity: 0.8; */
     transition: all 0.2s;
 }

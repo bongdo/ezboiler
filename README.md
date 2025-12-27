@@ -37,44 +37,6 @@ The project is designed as a **Static Site** powered by **Firebase** for backend
 - **Smooth Scrolling**: Auto-scroll interactions when selecting brands.
 - **Transitions**: Polished CSS transitions for modals, sidebars, and hover effects.
 
-## Setup & Development
-
-### Prerequisites
-
-- A modern web browser.
-- A local web server (e.g., Live Server, `python -m http.server`, or `npm start`).
-
-### Installation
-
-1.  Clone the repository:
-    ```bash
-    git clone https://github.com/yourusername/ezboiler-firebase.git
-    cd ezboiler-firebase
-    ```
-2.  Configuration:
-    - Ensure `config.js` contains your valid Firebase configuration object.
-    - (`config.js` is git-ignored by default for security).
-
-### Running Locally
-
-Serve the root directory using any static server. For example:
-
-```bash
-npx serve .
-# OR
-python3 -m http.server 3000
-```
-
-Open `http://localhost:3000` in your browser.
-
-## Deployment
-
-The project is ready for static deployment.
-
-1.  Build steps are not required (Vanilla JS).
-2.  Upload the root directory to your hosting provider.
-3.  Ensure `index.html` is the entry point.
-
 ## License
 
 [Proprietary / Private Project]

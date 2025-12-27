@@ -27,17 +27,15 @@ ul { list-style: none; padding: 0; margin: 0; }
 button { font-family: inherit; }
 
 /* Sticky Header System */
+/* Sticky Header System - DISABLED per user request */
 .sticky-container {
-    position: relative; /* Changed from sticky */
-    top: 0;
+    position: relative; 
+    top: auto;
     z-index: 1000;
-    background: transparent; /* Wrapper is transparent */
+    background: transparent;
+    height: auto; /* Allow natural height */
 }
 
-/* 1. Top Bar (Not sticky? User said "toggle must be sticky". Usually whole header is sticky). 
-   Let's make Main Header + Toggle sticky. 
-   User said: "toggle... sticky... without white strip... simple fix make white strip transparent... shadow on white box above".
-*/
 
 .main-header-block {
     background: white;
@@ -56,6 +54,8 @@ button { font-family: inherit; }
     color: var(--text-gray);
     /* Ensure it behaves nicely below header */
     background: #fdfdfd; 
+    position: relative;
+    z-index: 1002; /* Ensure clickable */
 }
 
 .nav-links {

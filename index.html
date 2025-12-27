@@ -11,20 +11,55 @@
 <body>
     
     <!-- Sticky Header System -->
+    <!-- Nav Drawer -->
+    <div id="mobileNav" class="nav-drawer">
+        <h2 style="font-size:1.5rem; margin-bottom:1rem; font-weight:800;">Меню</h2>
+        <a href="#" onclick="showCatalogAll(); toggleSidebar(false)">Каталог</a>
+        <a href="#">Промывка систем</a>
+        <a href="#">Удаленное управление</a>
+        <a href="#" onclick="openCallbackModal(); toggleSidebar(false)">Заказать звонок</a>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar(false)"></div>
+
+    <!-- Sticky Header System -->
     <div class="sticky-container">
         <div class="main-header-block">
             <!-- Main Header (Now First) -->
+            <!-- Main Header -->
             <header class="main-header">
-                <a href="#" onclick="location.reload()" class="logo">
-                     <img src="images/logo.svg" style="height:32px;">
-                    <span style="color:black;">EZ</span>BOILER
-                </a>
+                <div style="display:flex; align-items:center;">
+                    <button class="mobile-menu-btn" onclick="toggleSidebar(true)">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 12h18M3 6h18M3 18h18" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <a href="#" onclick="location.reload()" class="logo">
+                         <img src="images/logo.svg" style="height:32px;">
+                        <span style="color:black;">EZBOILER
+                    </a>
+                </div>
                 
                 <div class="search-bar">
                     <input type="text" id="searchInput" class="search-input" placeholder="Поиск по артикулу или названию...">
                 </div>
 
                 <div class="header-actions">
+                    <!-- Contact Block -->
+                    <div class="header-contact-block">
+                        <a href="https://yandex.com.tr/maps/-/CLcf7W3G" target="_blank" title="г. Владимир, ул. Дзержинского, 9">
+                            <img src="images/Yandex_Maps.png" style="width:24px; vertical-align:middle;">
+                            <span class="header-contact-text" style="font-size:0.9rem; margin-left:0.5rem; color:var(--text-gray);">г. Владимир</span>
+                        </a>
+                        <a href="https://wa.me/74922552288" target="_blank" title="WhatsApp: +74922552288">
+                            <img src="images/whatsapp.svg" class="social-icon">
+                        </a>
+                        <a href="https://t.me/boilervladimir" target="_blank" title="Telegram: @boilervladimir">
+                            <img src="images/telegram.svg" class="social-icon">
+                        </a>
+                    </div>
+
                     <button class="add-btn" onclick="openCallbackModal()" style="border-radius:2rem;">Заказать звонок</button>
                     <div class="cart-btn" id="cartBtn">
                         🛒 <span class="cart-count">0</span>
@@ -32,7 +67,7 @@
                 </div>
             </header>
 
-            <!-- Top Bar (Now Second) -->
+            <!-- Top Bar -->
             <div class="top-bar">
                 <div class="nav-links">
                     <a href="#" onclick="showCatalogAll()">Каталог</a>
@@ -41,7 +76,7 @@
                 </div>
                 <div class="social-links">
                     <a href="https://yandex.com.tr/maps/-/CLcf7W3G" target="_blank" style="display:flex; align-items:center; gap:0.5rem; color:inherit;">
-                        <img src="images/logo.svg" alt="Map" style="width:16px;">
+                        <img src="images/Yandex_Maps.png" alt="Map" style="width:16px;">
                          Г. Владимир, ул. Дзержинского, 9
                     </a>
                     <a href="#" title="WhatsApp"><img src="images/whatsapp.svg" class="social-icon" alt="WA"></a>
@@ -191,6 +226,14 @@
         const filtersPanel = document.getElementById('filtersPanel');
         const subHeader = document.getElementById('subHeader');
 
+        // Toggle Mobile Navigation Drawer
+        window.toggleSidebar = (show) => {
+            state.sidebarOpen = show;
+            const nav = document.getElementById('mobileNav');
+            nav.classList.toggle('open', show);
+            document.querySelector('.sidebar-overlay').classList.toggle('visible', show);
+        };
+
         async function init() {
             renderSidebar(); 
             // Also populate Filter Brand Dropdown
@@ -206,16 +249,16 @@
 
         function renderSidebar() {
             const container = document.getElementById('sidebarContent');
-            container.innerHTML = '';
+            container.innerHTML = ''; // Fixed: Desktop title stays in .sidebar HTML
+
+
             DATA.brands.forEach(b => {
                 const nav = document.createElement('div');
                 nav.className = `brand-tile`;
-                // Image only, fallback gracefully? 
-                // Using .toLowerCase() for image names is safer usually, but keeping as is per existing pattern
                 nav.innerHTML = `
                     <img src="images/${b.name}.png" alt="${b.name}" onerror="this.parentElement.innerHTML='<span style=\'font-weight:bold; font-size:0.9rem;\'>${b.name}</span>'">
                 `;
-                nav.onclick = () => selectBrand(b.name);
+                nav.onclick = () => { selectBrand(b.name); toggleSidebar(false); }; // Close on select
                 container.appendChild(nav);
             });
         }
@@ -244,6 +287,8 @@
                 if(state.brand) selectBrand(state.brand);
                 else selectBrand('BAXI');
             } else if (mode === 'types') {
+                // In types mode, sidebar is generally hidden from flow on desktop too?
+                // Logic says: sidebar hidden.
                 if(sb2) sb2.classList.add('hidden');
                 renderTypesGrid();
             } else {
@@ -300,6 +345,13 @@
                 });
                 main.appendChild(grid);
             }
+            
+            // Smooth Scroll to Top of Grid (with offset for sticky header)
+            setTimeout(() => {
+                const yOffset = -180; // Approximate header height + padding
+                const y = main.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                window.scrollTo({top: y, behavior: 'smooth'});
+            }, 100);
         };
 
         function renderTypesGrid() {
@@ -338,7 +390,7 @@
             
             // UI Updates
             
-            // Sidebar Logic: Strict HIDE when viewing product list (per user request)
+            // Hide Sidebar when viewing product list
             const sb = document.getElementById('sidebar');
             if(sb) sb.classList.add('hidden');
             

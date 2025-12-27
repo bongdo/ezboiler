@@ -48,13 +48,26 @@ button { font-family: inherit; }
 
 .top-bar {
     border-bottom: 1px solid #f3f4f6;
-    padding: 0.5rem 2rem;
-    font-size: 0.85rem;
+    padding: 0.75rem 2rem;
+    font-size: 0.9rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     color: var(--text-gray);
+    /* Ensure it behaves nicely below header */
+    background: #fdfdfd; 
 }
+
+.nav-links {
+    display: flex;
+    gap: 2.5rem; /* Increased spacing */
+}
+
+.nav-links a {
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--primary); }
 
 .social-links {
     display: flex;
@@ -342,6 +355,8 @@ button { font-family: inherit; }
 /* Main Content */
 .main-content {
     flex-grow: 1;
+    min-width: 0; /* Critical for grid children reflowing */
+    /* Ensure it doesn't push back if sidebar is fixed width */
 }
 
 /* Boiler Tiles (Hardcoded style) */

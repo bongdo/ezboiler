@@ -297,12 +297,59 @@ button { font-family: inherit; }
 }
 
 /* Sidebar */
+/* Sidebar */
 .sidebar {
     width: 260px;
     flex-shrink: 0;
-    height: fit-content;
+    background: white;
+    /* Desktop Sticky */
     position: sticky;
-    top: 180px; /* Offset */
+    top: 140px; /* Below header */
+    height: fit-content;
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+    z-index: 900; /* Below Header (1001) */
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+}
+
+/* Mobile Sidebar (Drawer) */
+@media (max-width: 800px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        max-height: 100vh;
+        width: 80%;
+        max-width: 300px;
+        z-index: 2000; /* Above everything */
+        transform: translateX(-105%); /* Hidden by default */
+        box-shadow: 10px 0 25px rgba(0,0,0,0.1);
+        border-radius: 0;
+        margin: 0; /* Reset margin */
+        display: block !important; /* Override hidden if set */
+    }
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    
+    /* Overlay for mobile sidebar */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        backdrop-filter: blur(2px);
+    }
+    .sidebar-overlay.visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
 }
 
 #sidebarContent {
@@ -576,117 +623,80 @@ footer {
 .social-footer { display: flex; gap: 1rem; margin-top: 1rem; }
 
 /* Mobile Responsiveness */
-@media (max-width: 768px) {
-    /* Sticky Header Logic for Mobile */
-    .sticky-container {
-        position: sticky;
-        top: 0;
+/* Mobile Responsiveness & Header Refactor */
+.mobile-menu-btn { display: none; }
+
+@media (max-width: 800px) {
+    .app-container { flex-direction: column; padding: 1rem; }
+    
+    /* Hide Desktop Elements */
+    .top-bar, .search-bar, .add-btn, .footer-col:nth-child(2), .footer-col:nth-child(3) { 
+        display: none !important; 
     }
 
-    /* Stack Header */
+    /* Single Row Header */
     .main-header {
-        flex-direction: column;
+        padding: 0.75rem 1rem;
         gap: 1rem;
-        padding: 1rem;
+        flex-direction: row; /* Force row */
+        justify-content: space-between;
     }
     
     .logo {
-        width: 100%;
-        justify-content: center;
-        order: 1;
+        font-size: 1.2rem;
+        width: auto; /* Reset width */
+        order: 0;
     }
-    
-    .search-bar {
-        width: 100%;
-        order: 2;
-        max-width: none;
+    .logo img { height: 24px !important; }
+
+    /* Hamburger */
+    .mobile-menu-btn {
+        display: block;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        margin-right: 0.5rem;
+        color: var(--text-dark);
     }
-    
+
     .header-actions {
-        width: 100%;
-        justify-content: space-between;
-        order: 3;
+        gap: 1rem;
+        width: auto; /* Reset */
+        order: 0;
     }
-
-    /* Sub Header & Toggle */
+    
+    /* Adjust Toggle Bar for Mobile */
     .sub-header {
-        flex-wrap: wrap;
         padding: 0.5rem 1rem;
-        gap: 0.5rem;
+        overflow-x: auto; /* Allow scroll if needed */
+        justify-content: flex-start;
+        flex-wrap: nowrap; /* Don't wrap toggles */
     }
     
-    .mode-toggle {
-        width: 100%;
-        display: flex;
-    }
-    
+    .mode-toggle { width: auto; display: inline-flex; }
+
     .filters-row {
-        max-width: 100%;
+        flex-wrap: nowrap;
         overflow-x: auto;
-        padding-bottom: 0.25rem; /* Space for scrollbar if any */
+        padding-bottom: 0.5rem; /* Scrollbar space */
     }
 
-    /* Layout */
-    .app-container {
-        display: flex;
-        flex-direction: column;
-        padding: 1rem;
-    }
-
-    /* Horizontal Rolling Sidebar -> converted to GRID 2 cols */
-    .sidebar {
-        width: 100%;
-        top: 70px; /* Below sticky header approx */
-        z-index: 900;
-        background: var(--bg-light);
-        margin-bottom: 1rem;
-        border-right: none;
-        border-bottom: none; /* No border needed if tiles are separated */
-        
-        /* Reset Flex/Scroll */
-        display: block; 
-        overflow-x: visible;
-        white-space: normal;
-        padding-bottom: 0.5rem;
-    }
-
-    #sidebarContent {
-        display: grid;
+    /* Grid Layout for Mobile */
+    .grid-boilers, .grid-products {
         grid-template-columns: repeat(2, 1fr);
         gap: 0.5rem;
-        padding: 0 0.5rem;
-    }
-
-    .brand-tile {
-        height: 70px; /* Slightly smaller on mobile */
     }
     
-    /* Hide the title 'Бренды' specifically */
-    .sidebar h3 {
-        display: none;
+    /* Reset Sidebar Content Grid from previous attempt */
+    #sidebarContent {
+        display: block; /* Vertical list in drawer */
+        padding: 1rem;
     }
-
-    /* Grid layout */
-    .grid-boilers, .grid-products {
-        grid-template-columns: repeat(2, 1fr); /* 2 cols on mobile */
-        gap: 0.5rem;
-    }
+    .brand-tile { margin-bottom: 0.5rem; height: 60px; }
     
-    .product-img {
-        height: 140px;
-    }
-    
-    .product-title {
-        font-size: 0.9rem;
-    }
-    
-    .price-tag {
-        font-size: 1.1rem;
-    }
-    
-    /* Modal */
-    .modal-content {
-        max-width: 100%;
-    }
+    /* Show sidebar title in drawer */
+    .sidebar h3 { display: block; }
 }
 

@@ -11,14 +11,27 @@
 <body>
     
     <!-- Sticky Header System -->
+    
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar(false)"></div>
+
+    <!-- Sticky Header System -->
     <div class="sticky-container">
         <div class="main-header-block">
             <!-- Main Header (Now First) -->
+            <!-- Main Header (Now First) -->
             <header class="main-header">
-                <a href="#" onclick="location.reload()" class="logo">
-                     <img src="images/logo.svg" style="height:32px;">
-                    <span style="color:black;">EZ</span>BOILER
-                </a>
+                <div style="display:flex; align-items:center;">
+                    <button class="mobile-menu-btn" onclick="toggleSidebar(true)">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 12h18M3 6h18M3 18h18" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <a href="#" onclick="location.reload()" class="logo">
+                         <img src="images/logo.svg" style="height:32px;">
+                        <span style="color:black;">EZ</span>BOILER
+                    </a>
+                </div>
                 
                 <div class="search-bar">
                     <input type="text" id="searchInput" class="search-input" placeholder="Поиск по артикулу или названию...">
@@ -191,6 +204,13 @@
         const filtersPanel = document.getElementById('filtersPanel');
         const subHeader = document.getElementById('subHeader');
 
+        // Sidebar Toggle Logic
+        window.toggleSidebar = (show) => {
+            state.sidebarOpen = show;
+            sidebar.classList.toggle('open', show);
+            document.querySelector('.sidebar-overlay').classList.toggle('visible', show);
+        };
+
         async function init() {
             renderSidebar(); 
             // Also populate Filter Brand Dropdown
@@ -206,16 +226,29 @@
 
         function renderSidebar() {
             const container = document.getElementById('sidebarContent');
-            container.innerHTML = '';
+            container.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                   <h3 style="padding:1rem;">Бренды</h3>
+                   <!-- Mobile Close Button -->
+                   <button onclick="toggleSidebar(false)" style="padding:0.5rem; background:none; border:none; font-size:1.5rem; cursor:pointer;" class="mobile-only">&times;</button>
+                </div>
+            `;
+            
+            // Add style for mobile-only button if not in CSS
+            if(!document.getElementById('mobile-style-fix')) {
+               const s = document.createElement('style');
+               s.id = 'mobile-style-fix';
+               s.innerHTML = '@media(min-width:801px){ .mobile-only { display:none!important; } }';
+               document.head.appendChild(s);
+            }
+
             DATA.brands.forEach(b => {
                 const nav = document.createElement('div');
                 nav.className = `brand-tile`;
-                // Image only, fallback gracefully? 
-                // Using .toLowerCase() for image names is safer usually, but keeping as is per existing pattern
                 nav.innerHTML = `
                     <img src="images/${b.name}.png" alt="${b.name}" onerror="this.parentElement.innerHTML='<span style=\'font-weight:bold; font-size:0.9rem;\'>${b.name}</span>'">
                 `;
-                nav.onclick = () => selectBrand(b.name);
+                nav.onclick = () => { selectBrand(b.name); toggleSidebar(false); }; // Close on select
                 container.appendChild(nav);
             });
         }
@@ -244,6 +277,8 @@
                 if(state.brand) selectBrand(state.brand);
                 else selectBrand('BAXI');
             } else if (mode === 'types') {
+                // In types mode, sidebar is generally hidden from flow on desktop too?
+                // Logic says: sidebar hidden.
                 if(sb2) sb2.classList.add('hidden');
                 renderTypesGrid();
             } else {

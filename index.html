@@ -12,83 +12,43 @@
     
     <!-- Sticky Header System -->
     <div class="sticky-container">
-    <div class="sticky-container">
         <div class="main-header-block">
-            <!-- Top Bar (Desktop Only) -->
-            <div class="top-bar desktop-only">
-                <div class="social-links-left">
-                    <a href="https://wa.me/79991234567" title="WhatsApp"><img src="images/whatsapp.svg" class="social-icon" alt="WA"></a>
-                    <a href="https://t.me/ezboiler" title="Telegram"><img src="images/telegram.svg" class="social-icon" alt="TG"></a>
-                    <a href="mailto:info@ezboiler.ru" title="Email"><img src="images/mail.svg" class="social-icon" alt="@"></a>
-                </div>
-                
-                <div class="nav-links-center">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="nav-links">
                     <a href="#" onclick="showCatalogAll()">Каталог</a>
                     <a href="#">Промывка систем</a>
                     <a href="#">Удаленное управление</a>
                 </div>
-
-                <div class="contact-info-right">
-                    <a href="https://yandex.ru/maps/-/CDGeJV3K" target="_blank" class="address-link">
-                        <img src="images/Yandex_Maps.png" alt="Map" style="width:24px;">
-                        <span>г. Казань, ул. Техническая, д. 17В, офис 208</span>
+                <div class="social-links">
+                    <a href="https://yandex.com.tr/maps/-/CLcf7W3G" target="_blank" style="display:flex; align-items:center; gap:0.5rem; color:inherit;">
+                        <img src="images/logo.svg" alt="Map" style="width:16px;">
+                         Г. Владимир, ул. Дзержинского, 9
                     </a>
+                    <a href="#" title="WhatsApp"><img src="images/whatsapp.svg" class="social-icon" alt="WA"></a>
+                    <a href="#" title="Telegram"><img src="images/telegram.svg" class="social-icon" alt="TG"></a>
+                    <a href="mailto:info@ezboiler.ru" title="Email"><img src="images/mail.svg" class="social-icon" alt="@"></a>
                 </div>
             </div>
 
             <!-- Main Header -->
             <header class="main-header">
-                <!-- Burger (Mobile Only) -->
-                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
-                
                 <a href="#" onclick="location.reload()" class="logo">
                      <img src="images/logo.svg" style="height:32px;">
-                    <span style="color:black;">ezboiler</span>
+                    <span style="color:black;">EZ</span>BOILER
                 </a>
                 
-                <!-- Search (Centered on Desktop) -->
                 <div class="search-bar">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Поиск...">
-                    <button onclick="handleSearch(document.getElementById('searchInput').value)">🔍</button>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Поиск по артикулу или названию...">
                 </div>
 
-                <!-- Actions (Desktop Only) -->
-                <div class="header-actions desktop-only">
-                    <button class="add-btn" onclick="openCallbackModal()" style="border-radius:2rem; padding: 0.5rem 1.5rem;">Заказать звонок</button>
-                    <div class="cart-btn" id="cartBtn" onclick="openCart()">
+                <div class="header-actions">
+                    <button class="add-btn" onclick="openCallbackModal()" style="border-radius:2rem;">Заказать звонок</button>
+                    <div class="cart-btn" id="cartBtn">
                         🛒 <span class="cart-count">0</span>
                     </div>
                 </div>
-
-                <!-- Mobile Cart Icon (Visible on Mobile) -->
-                <div class="cart-btn mobile-only" onclick="openCart()" style="margin-left: auto; display: none;">
-                    🛒 <span class="cart-count">0</span>
-                </div>
             </header>
-
-            <!-- Mobile Menu Overlay -->
-            <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="toggleMobileMenu(false)"></div>
-            <div class="mobile-menu" id="mobileMenu">
-                <div class="mobile-menu-header">
-                    <h3>Меню</h3>
-                    <span class="close-btn" onclick="toggleMobileMenu(false)">&times;</span>
-                </div>
-                <div class="mobile-menu-content">
-                    <a href="#" onclick="showCatalogAll(); toggleMobileMenu(false);">Каталог</a>
-                    <a href="#">Промывка систем</a>
-                    <a href="#">Удаленное управление</a>
-                    <hr>
-                    <a href="#" onclick="openCart(); toggleMobileMenu(false);">Корзина <span id="cartBadgeMobile">(0)</span></a>
-                    <div style="margin: 1rem 0;">
-                         <button class="add-btn" onclick="openCallbackModal()" style="width:100%;">Заказать звонок</button>
-                    </div>
-                    <a href="https://yandex.ru/maps/-/CDGeJV3K" target="_blank">Адрес: Казань, Техническая 17В</a>
-                    <div class="mobile-socials">
-                        <a href="#">WhatsApp</a>
-                        <a href="#">Telegram</a>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Transparent Toggle Bar -->
@@ -261,11 +221,6 @@
         }
 
         window.setMode = (mode) => {
-            if (state.mode === mode) {
-                 // Double click / Re-click: Smooth Scroll to Top
-                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                 return; 
-            }
             state.mode = mode;
             
             // Toggle Button State
@@ -338,54 +293,29 @@
                 brandData.models.forEach(m => {
                     const card = document.createElement('div');
                     card.className = 'boiler-card';
+                    // Use images/boiler.png
                     card.innerHTML = `<img src="images/boiler.png" style="width:60px; height:60px; object-fit:contain; margin-bottom:1rem;"><div class="boiler-name">${m}</div>`;
                     card.onclick = () => showProducts({boiler: m, brand: brandName});
                     grid.appendChild(card);
                 });
                 main.appendChild(grid);
-                
-                // Scroll to grid top
-                setTimeout(() => {
-                    window.scrollTo({
-                        top: grid.getBoundingClientRect().top + window.scrollY - 100, // Offset for header
-                        behavior: 'smooth'
-                    });
-                }, 100);
             }
         };
 
-        // Modal for Product Details
-        window.showProductDetails = (product) => {
-            const modal = document.createElement('div');
-            modal.className = 'modal active'; // Use active class directly or anim
-            modal.style.display = 'block'; // Ensure block
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width:600px; margin:auto; top:10%; position:relative; height:auto; border-radius:1rem;">
-                    <span class="close-btn" onclick="this.parentElement.parentElement.remove()" style="position:absolute; right:1rem; top:1rem; cursor:pointer; font-size:1.5rem;">&times;</span>
-                    <div style="text-align:center;">
-                        <img src="${product.image ? product.image : (product.images && product.images.length > 0 ? product.images[0] : 'images/placeholder.png')}" style="max-height:200px; margin-bottom:1rem;">
-                        <h2>${product.name}</h2>
-                        <h3 style="color:var(--primary);">${product.price ? product.price + ' ₽' : 'Цена по запросу'}</h3>
-                        <p style="color:var(--text-gray); font-size:0.9rem;">Артикул: ${product.sku || '---'}</p>
-                    </div>
-                    <div style="margin-top:1rem; text-align:left;">
-                        <h4>Описание</h4>
-                        <p>${product.description || 'Описание отсутствует.'}</p>
-                        ${product.params ? '<h4>Характеристики</h4><ul>' + Object.entries(product.params).map(([k,v]) => `<li><b>${k}:</b> ${v}</li>`).join('') + '</ul>' : ''}
-                    </div>
-                     <button class="add-btn" style="width:100%; margin-top:1.5rem;" onclick="addToCart('${product.id}'); this.parentElement.parentElement.remove();">В корзину</button>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        };
-
-        // Modify showProducts to attach showProductDetails to cards?
-        // Actually, existing showProducts generates cards. I need to update THAT generation.
-        // Wait, showProducts is below. I should verify it calls showProductDetails?
-        // Or I should REPLACE showProducts to make cards clickable to open DETAILS instead of just... adding to cart?
-        // User request: "products should open their pages with description".
-        // Current showProducts likely adds to cart or does nothing on click?
-        // Let's modify renderTypesGrid first as it is in view range.
+        function renderTypesGrid() {
+            main.innerHTML = '<h2>Категории запчастей</h2>';
+            const grid = document.createElement('div');
+            grid.className = 'grid-boilers';
+            DATA.partTypes.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'boiler-card';
+                card.innerHTML = `<div class="boiler-name">${t}</div>`;
+                // FIX: use 't' variable
+                card.onclick = () => showProducts({type: t}); 
+                grid.appendChild(card);
+            });
+            main.appendChild(grid);
+        }
 
         window.showCatalogAll = () => {
              // Reset filters
@@ -532,11 +462,6 @@
         function renderProductCard(container, p) {
             const card = document.createElement('div');
             card.className = 'product-card';
-            // Make whole card click open details
-            card.onclick = (e) => {
-                if(e.target.tagName !== 'BUTTON') showProductDetails(p);
-            };
-            
             const cleanImg = p.imageUrl && p.imageUrl.startsWith('/') ? '.' + p.imageUrl : p.imageUrl;
             card.innerHTML = `
                 <div class="product-img">
@@ -547,7 +472,7 @@
                     <div class="product-meta">${p.vendorCode}</div>
                     <div class="product-footer">
                         <div class="price-tag">${p.price ? p.price + ' ₽' : ''}</div>
-                        <button class="add-btn" onclick="addToCart('${p.vendorCode}', this); event.stopPropagation();">В корзину</button>
+                        <button class="add-btn" onclick="addToCart('${p.vendorCode}', this)">В корзину</button>
                     </div>
                 </div>
             `;

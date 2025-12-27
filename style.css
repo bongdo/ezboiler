@@ -362,7 +362,7 @@ button { font-family: inherit; }
 }
 
 /* Header Contact Block - Hidden on Desktop by default */
-.header-contact-block { display: none; }
+.header-contact-block { display: none !important; }
 
 /* Mobile Responsiveness */
 .mobile-menu-btn { display: none; }

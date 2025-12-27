@@ -361,6 +361,9 @@ button { font-family: inherit; }
     pointer-events: auto;
 }
 
+/* Header Contact Block - Hidden on Desktop by default */
+.header-contact-block { display: none; }
+
 /* Mobile Responsiveness */
 .mobile-menu-btn { display: none; }
 
@@ -402,18 +405,39 @@ button { font-family: inherit; }
     .header-actions {
         order: 0;
         gap: 0.5rem;
+        width: auto;
     }
     
-    /* Ensure Header Contact Icons stack or hide text on mobile */
+    /* Show Contact Icons on Mobile */
     .header-contact-block {
         display: flex; 
         align-items: center; 
         gap: 0.5rem;
     }
-    .header-contact-text, .header-phone-text { display: none; } /* Show only icons on mobile */
+    /* Hide text on mobile, keep icons */
+    .header-contact-text, .header-phone-text { display: none; } 
 
-
-    /* Sidebar Revert to Horizontal Scroll Belt */
+    /* Toggle Bar (Switcher) Fixes */
+    .sub-header {
+        justify-content: center;
+        flex-wrap: nowrap;
+        overflow: hidden; /* No scroll */
+        padding: 0.5rem 0; /* Min padding */
+        width: 100%;
+    }
+    .mode-toggle {
+        width: 100%;
+        display: flex;
+    }
+    .toggle-btn {
+        flex: 1;
+        text-align: center;
+        white-space: nowrap;
+        font-size: 0.85rem; /* Scale down slightly */
+        padding: 0.5rem 0.5rem;
+    }
+    
+    /* Sidebar Revert to GRID LAYOUT (2 Columns) */
     .sidebar {
         width: 100%;
         position: static;
@@ -426,24 +450,21 @@ button { font-family: inherit; }
         margin-bottom: 1rem;
         z-index: auto;
         border-radius: 0;
-        overflow: visible; /* Content handles scroll */
+        overflow: visible; 
     }
 
-    /* Grid/Flex Content for Mobile Brands */
+    /* Grid Content for Mobile Brands */
     #sidebarContent {
-        display: flex;
-        overflow-x: auto;
-        gap: 0.75rem;
-        padding: 0.5rem 0.25rem;
-        scrollbar-width: none;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+        padding: 0;
+        overflow: visible; 
     }
-    #sidebarContent::-webkit-scrollbar { display: none; }
 
     .brand-tile {
-        flex-shrink: 0;
-        width: 80px;
-        height: 60px;
-        font-size: 0.8rem;
+        height: 70px; /* Taller for grid */
+        width: auto; /* Fill grid cell */
     }
     
     /* Hide the title 'Бренды' */

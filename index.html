@@ -15,8 +15,8 @@
     <div id="mobileNav" class="nav-drawer">
         <h2 style="font-size:1.5rem; margin-bottom:1rem; font-weight:800;">Меню</h2>
         <a href="#" onclick="showCatalogAll(); toggleSidebar(false)">Каталог</a>
-        <a href="#">Промывка систем</a>
-        <a href="#">Удаленное управление</a>
+        <a href="#" onclick="renderPage('flushing'); toggleSidebar(false)">Промывка систем</a>
+        <a href="#" onclick="renderPage('remote'); toggleSidebar(false)">Удаленное управление</a>
         <a href="#" onclick="openCallbackModal(); toggleSidebar(false)">Заказать звонок</a>
     </div>
 
@@ -71,8 +71,8 @@
             <div class="top-bar">
                 <div class="nav-links">
                     <a href="#" onclick="showCatalogAll()">Каталог</a>
-                    <a href="#">Промывка систем</a>
-                    <a href="#">Удаленное управление</a>
+                    <a href="#" onclick="renderPage('flushing')">Промывка систем</a>
+                    <a href="#" onclick="renderPage('remote')">Удаленное управление</a>
                 </div>
                 <div class="social-links">
                     <a href="https://yandex.com.tr/maps/-/CLcf7W3G" target="_blank" style="display:flex; align-items:center; gap:0.5rem; color:inherit;">
@@ -167,8 +167,8 @@
                 <h4>Каталог</h4>
                 <ul>
                     <li><a href="#" onclick="showCatalogAll()">Запчасти для котлов</a></li>
-                    <li><a href="#">Промывка систем</a></li>
-                    <li><a href="#">Удаленное управление</a></li>
+                    <li><a href="#" onclick="renderPage('flushing')">Промывка систем</a></li>
+                    <li><a href="#" onclick="renderPage('remote')">Удаленное управление</a></li>
                 </ul>
             </div>
         </div>
@@ -179,11 +179,11 @@
         <div class="modal-content anim-slide-in">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
                 <h2 style="font-size:1.5rem; font-weight:800;">Корзина</h2>
-                <button onclick="closeCart()" style="border:none; bg:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+                <button onclick="closeCart()" style="border:none; background:none; font-size:1.5rem; cursor:pointer;">&times;</button>
             </div>
             <div id="cartItems" style="flex-grow:1; overflow-y:auto;"></div>
             <div style="margin-top:auto; padding-top:1rem; border-top:1px solid #f3f4f6;">
-                <button style="width:100%; padding:1rem; background:var(--primary); color:white; border:none; border-radius:0.5rem; font-weight:bold; cursor:pointer;" onclick="alert('Заказ оформлен!')">
+                <button style="width:100%; padding:1rem; background:var(--primary); color:white; border:none; border-radius:0.5rem; font-weight:bold; cursor:pointer;" onclick="openCheckout()">
                     Оформить заказ (<span id="cartTotalBtn">0</span> ₽)
                 </button>
             </div>
@@ -199,10 +199,41 @@
         </div>
     </div>
 
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content anim-slide-in">
+             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h2 style="font-size:1.5rem; font-weight:800;">Оформление</h2>
+                <button onclick="document.getElementById('checkoutModal').style.display='none'" style="border:none; background:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            
+            <form class="checkout-form" onsubmit="event.preventDefault(); submitOrder();">
+                <div class="form-group">
+                    <label>Ваше имя</label>
+                    <input type="text" id="orderName" required>
+                </div>
+                <div class="form-group">
+                    <label>Телефон</label>
+                    <input type="tel" id="orderPhone" required placeholder="+7 (___) ___-__-__">
+                </div>
+                <div class="form-group">
+                    <label>Адрес доставки (необязательно)</label>
+                    <textarea id="orderAddress" placeholder="Город, улица, дом..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Комментарий</label>
+                    <textarea id="orderComment"></textarea>
+                </div>
+                
+                <button type="submit" class="checkout-btn" id="submitOrderBtn">Подтвердить заказ</button>
+            </form>
+        </div>
+    </div>
+
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where, limit, startAfter, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, limit, startAfter, orderBy, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import firebaseConfig from './config.js';
 
         const app = initializeApp(firebaseConfig);
@@ -218,7 +249,8 @@
             hasMore: true,
             products: [],
             filterBoiler: null,
-            filterType: null
+            filterType: null,
+            exchangeRate: 95 // Default fallback
         };
 
         const main = document.getElementById('mainContent');
@@ -236,15 +268,50 @@
 
         async function init() {
             renderSidebar(); 
-            // Also populate Filter Brand Dropdown
             const sel = document.getElementById('filterBrand');
             DATA.brands.forEach(b => {
                 const o = document.createElement('option');
                 o.value = b.name; o.textContent = b.name; sel.appendChild(o);
             });
+
+            await fetchExchangeRate();
+            
             // Initial view
             selectBrand('BAXI');
             updateCartCount();
+        }
+
+        async function fetchExchangeRate() {
+            try {
+                // Check cache
+                const cached = localStorage.getItem('exchangeRateData');
+                if (cached) {
+                const data = JSON.parse(cached);
+                const now = new Date().getTime();
+                if (now - data.timestamp < 24 * 60 * 60 * 1000) { // 24 hours
+                    state.exchangeRate = data.rate;
+                    console.log('Using cached exchange rate:', state.exchangeRate);
+                    return;
+                }
+                }
+
+                const response = await fetch('https://www.cbr-xml-daily.ru/daily_json.js');
+                const json = await response.json();
+                const rate = json.Valute.EUR.Value;
+                
+                // Add a small buffer or round up if needed? User said "about 90".
+                // Let's us raw CBR rate.
+                state.exchangeRate = rate;
+                
+                localStorage.setItem('exchangeRateData', JSON.stringify({
+                    rate: rate,
+                    timestamp: new Date().getTime()
+                }));
+                console.log('Fetched new exchange rate:', state.exchangeRate);
+            } catch (e) {
+                console.error('Failed to fetch exchange rate, using fallback:', e);
+                state.exchangeRate = 95; // Safe fallback
+            }
         }
 
         function renderSidebar() {
@@ -523,7 +590,7 @@
                     <div class="product-title">${p.name}</div>
                     <div class="product-meta">${p.vendorCode}</div>
                     <div class="product-footer">
-                        <div class="price-tag">${p.price ? p.price + ' ₽' : ''}</div>
+                        <div class="price-tag">${p.price ? Math.ceil(p.price * state.exchangeRate) + ' ₽' : ''}</div>
                         <button class="add-btn" onclick="addToCart('${p.vendorCode}', this)">В корзину</button>
                     </div>
                 </div>
@@ -549,7 +616,7 @@
         function updateCartCount() {
             const c = state.cart.reduce((a,b)=>a+b.qty,0);
             document.querySelector('.cart-count').textContent = c;
-            const tot = state.cart.reduce((a,b)=>a+(b.price||0)*b.qty,0);
+            const tot = state.cart.reduce((a,b)=>a+(Math.ceil((b.price||0) * state.exchangeRate))*b.qty,0);
             const btn = document.getElementById('cartTotalBtn');
             if(btn) btn.textContent = tot.toLocaleString();
             renderCartItems();
@@ -565,7 +632,7 @@
              c.innerHTML = state.cart.map(i => `
                  <div style="display:flex; justify-content:space-between; padding:1rem 0; border-bottom:1px solid #eee;">
                     <div><b>${i.name}</b><br><span style="font-size:0.8rem; color:#888;">${i.vendorCode}</span></div>
-                    <div>${i.qty} x ${i.price} ₽ 
+                    <div>${i.qty} x ${Math.ceil(i.price * state.exchangeRate)} ₽ 
                     <button onclick="removeFromCart('${i.vendorCode}')" style="color:red; margin-left:1rem; border:none; bg:none; cursor:pointer;">&times;</button>
                     </div>
                  </div>
@@ -577,6 +644,92 @@
             updateCartCount();
         };
         window.openCallbackModal = () => document.getElementById('callModal').style.display='block';
+
+        window.renderPage = (pageType) => {
+            const data = DATA.services[pageType];
+            if (!data) return;
+            
+            // Hide Sidebar & Filters
+            const sb = document.getElementById('sidebar');
+            if(sb) sb.classList.add('hidden');
+            resetFiltersAnimation();
+            
+            // Render Content
+            main.innerHTML = `
+                <div class="service-page-content">
+                    <h2>${data.title}</h2>
+                    ${data.description}
+                    
+                    <table class="price-grid">
+                        <thead>
+                            <tr>
+                                <th>Наименование услуги</th>
+                                <th>Стоимость</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.prices.map(p => `
+                                <tr>
+                                    <td>${p.name}</td>
+                                    <td>${p.price.toLocaleString()} ₽</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    
+                    <div style="margin-top:2rem; text-align:center;">
+                        <button class="checkout-btn" onclick="openCallbackModal()">Заказать консультацию</button>
+                    </div>
+                </div>
+            `;
+            
+            window.scrollTo({top:0, behavior:'smooth'});
+        };
+
+        window.openCheckout = () => {
+            if(state.cart.length === 0) return alert('Корзина пуста');
+            document.getElementById('cartModal').style.display='none';
+            document.getElementById('checkoutModal').style.display='block';
+        };
+
+        window.submitOrder = async () => {
+            const btn = document.getElementById('submitOrderBtn');
+            btn.disabled = true;
+            btn.textContent = 'Отправка...';
+            
+            try {
+                const orderData = {
+                    date: new Date().toISOString(),
+                    name: document.getElementById('orderName').value,
+                    phone: document.getElementById('orderPhone').value,
+                    address: document.getElementById('orderAddress').value,
+                    comment: document.getElementById('orderComment').value,
+                    items: state.cart,
+                    total: state.cart.reduce((a,b)=>a+(Math.ceil((b.price||0) * state.exchangeRate))*b.qty,0),
+                    status: 'new'
+                };
+                
+                await addDoc(collection(db, 'orders'), orderData);
+                
+                alert('Спасибо! Ваш заказ успешно оформлен. Мы свяжемся с вами в ближайшее время.');
+                
+                // Clear Cart
+                state.cart = [];
+                localStorage.setItem('cart', '[]');
+                updateCartCount();
+                
+                // Close & Reset
+                document.getElementById('checkoutModal').style.display = 'none';
+                document.querySelector('.checkout-form').reset();
+                
+            } catch (e) {
+                console.error(e);
+                alert('Ошибка при отправке заказа. Пожалуйста, позвоните нам.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Подтвердить заказ';
+            }
+        };
 
         init();
     </script>

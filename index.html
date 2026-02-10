@@ -41,8 +41,9 @@
                     </a>
                 </div>
                 
-                <div class="search-bar">
+                <div class="search-bar" style="position:relative;">
                     <input type="text" id="searchInput" class="search-input" placeholder="Поиск по артикулу или названию...">
+                    <div id="searchDropdown" class="search-dropdown"></div>
                 </div>
 
                 <div class="header-actions">
@@ -516,26 +517,7 @@
                 // Firestore filtering
                 // We'll apply 'where' logic if possible
                 const brandVal = document.getElementById('filterBrand').value;
-                // Note: To use 'where' mixed with 'orderBy name' we need specific composite indexes.
-                // Since this is a simple static site without complex indexes setup, 
-                // we might face "requires index" errors.
-                // Safe bet: Fetch sorted by Name, and Client Filter?
-                // OR: Just fetch. 
-                // User requirement: "Filters logic correct".
-                // If I add 'where', it might break.
-                // Let's rely on basic fetch and maybe client filter small batch? 
-                // No, client filter on 30 items is useless.
-                // Let's try adding `where` for brand if index exists?
-                // Actually, I can't create indexes for user.
-                // I will stick to basic fetch for stability, but this means filters are "visual" only unless I filter InMemory 
-                // OR I take the risk of "missing index" error.
-                // Given the "28k reads" complaint, I must rely on Limit.
-                // I will Implement strict CLIENT SIDE filtering on the fetched batch? 
-                // That might result in empty pages.
-                
-                // Compromise:
-                // Just Fetch 30 ordered by name.
-                // If the user selects a filter, we might need to filter.
+
                 
                 const q = query(productsRef, ...constraints);
                 const snapshot = await getDocs(q);
@@ -731,7 +713,257 @@
             }
         };
 
+
+        async function setupSearch() {
+            const input = document.getElementById('searchInput');
+            if (!input) return;
+
+            const dropdown = document.getElementById('searchDropdown');
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+
+            // Focus handler - show dropdown if there is text
+            input.addEventListener('focus', () => {
+                if (input.value.trim().length >= 2 && state.searchIndex) {
+                     // Re-run search/filter just to be sure or just show if we have previous results? 
+                     // Simpler to just trigger input handler logic or let user type.
+                     // But let's at least show if we have 'active' results from previous?
+                     // Actually, let's just re-trigger search logic:
+                     input.dispatchEvent(new Event('input'));
+                }
+            });
+
+            // Input handler for Dropdown
+            input.addEventListener('input', debounce(async (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                
+                if (query.length < 2) {
+                    dropdown.classList.remove('active');
+                    if (query.length === 0 && state.searchMode) {
+                        state.searchMode = false;
+                        showCatalogAll(); // Reset if cleared
+                    }
+                    return;
+                }
+
+                if (!state.searchIndex) {
+                    try {
+                        const resp = await fetch('search_index.json');
+                        state.searchIndex = await resp.json();
+                    } catch (err) {
+                        console.error("Failed to load search index", err);
+                        return;
+                    }
+                }
+
+                // Just prepare results for Dropdown, don't change main view yet
+                const terms = query.split(/\s+/);
+                const results = state.searchIndex.filter(p => {
+                    if (!p.keywords) return false;
+                    return terms.every(term => p.keywords.includes(term));
+                });
+
+                renderDropdown(results, dropdown);
+            }, 300));
+
+            // Enter key handler
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    dropdown.classList.remove('active'); // Hide dropdown
+                    
+                    if (!state.searchIndex) return; // Should be loaded by input event, but if type fast?
+
+                    const query = input.value.toLowerCase().trim();
+                    if (query.length < 2) return;
+
+                    state.searchMode = true;
+                    // Close mobile keyboard?
+                    input.blur(); 
+
+                    const terms = query.split(/\s+/);
+                    const results = state.searchIndex.filter(p => {
+                        if (!p.keywords) return false;
+                        return terms.every(term => p.keywords.includes(term));
+                    });
+
+                    renderSearchResults(results);
+                }
+            });
+        }
+
+        function renderDropdown(results, container) {
+            container.innerHTML = '';
+            if (results.length === 0) {
+                container.classList.remove('active');
+                return;
+            }
+
+            // Show max 10 items (more space for suggestions)
+            const limit = 10;
+            const shown = results.slice(0, limit);
+
+            shown.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'search-item';
+                
+                let iconHtml = '';
+                let metaHtml = '';
+                let priceHtml = '';
+                let action = null;
+
+                if (p.type === 'brand') {
+                    iconHtml = `<div class="search-item-img" style="display:flex;align-items:center;justify-content:center;font-size:20px;background:#fff7ed;color:#f97316;">🏭</div>`;
+                    metaHtml = `<div class="search-item-meta" style="color:#f97316;">Бренд</div>`;
+                    action = () => {
+                        window.selectBrand(p.name);
+                        container.classList.remove('active');
+                        // No need to change searchMode or renderSearchResults, we just navigated.
+                    };
+                } else if (p.type === 'model') {
+                    iconHtml = `<div class="search-item-img" style="display:flex;align-items:center;justify-content:center;font-size:20px;background:#eff6ff;color:#3b82f6;">🔥</div>`;
+                    metaHtml = `<div class="search-item-meta" style="color:#3b82f6;">Модель котла (${p.brandName})</div>`;
+                    action = () => {
+                        // Select brand first? No, showProducts handles filters.
+                        // We might want to set state.brand for UI consistency if showProducts doesn't do it fully?
+                        // showProducts({boiler...}) sets state.filterBoiler.
+                        // If we want consistency, we can set state.brand = p.brandName;
+                        // But selectBrand does a lot of UI reset.
+                        // Let's just call showProducts.
+                        // Ensure sidebar is visible/etc?
+                        window.showProducts({ boiler: p.name, brand: p.brandName });
+                        container.classList.remove('active');
+                    };
+                } else if (p.type === 'type') {
+                    iconHtml = `<div class="search-item-img" style="display:flex;align-items:center;justify-content:center;font-size:20px;background:#f0fdf4;color:#22c55e;">⚙️</div>`;
+                    metaHtml = `<div class="search-item-meta" style="color:#22c55e;">Категория запчастей</div>`;
+                    action = () => {
+                        window.showProducts({ type: p.name });
+                        container.classList.remove('active');
+                    };
+                } else {
+                    // Regular Product
+                    const imgUrl = p.imageUrl || 'images/boiler-icon.png';
+                    iconHtml = p.imageUrl 
+                        ? `<img src="${p.imageUrl}" class="search-item-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2NjYyI+PHBhdGggZD0iTTEwIDIwdi02aDR2Nmg1di04aDNMMTIgMyAyIDEydjhoNXoiLz48L3N2Zz4='">` 
+                        : `<div class="search-item-img" style="display:flex;align-items:center;justify-content:center;color:#ccc;font-size:20px;">📦</div>`;
+                    metaHtml = `<div class="search-item-meta">${p.vendorCode}</div>`;
+                    priceHtml = `<div class="search-item-price">${p.price ? p.price + ' ₽' : 'По запросу'}</div>`;
+                    action = () => {
+                       document.getElementById('searchInput').value = p.name; 
+                       container.classList.remove('active');
+                       state.searchMode = true;
+                       renderSearchResults([p]); 
+                    };
+                }
+
+                item.innerHTML = `
+                    ${iconHtml}
+                    <div class="search-item-info">
+                        <div class="search-item-name">${p.name}</div>
+                        ${metaHtml}
+                    </div>
+                    ${priceHtml}
+                `;
+
+                item.addEventListener('mousedown', (e) => { // mousedown happens before blur
+                     e.preventDefault(); // prevent blur?
+                     action();
+                });
+                // Also click for good measure? mousedown is safer for dropdowns usually.
+
+                container.appendChild(item);
+            });
+            
+            if (results.length > limit) {
+                const more = document.createElement('div');
+                more.className = 'search-item';
+                more.style.justifyContent = 'center';
+                more.style.color = 'var(--primary)';
+                more.style.fontWeight = 'bold';
+                more.textContent = `Показать все результаты (${results.length})`;
+                more.addEventListener('mousedown', (e) => {
+                    e.stopPropagation(); 
+                    container.classList.remove('active');
+                    state.searchMode = true;
+                    // Filter out non-products for the main view?
+                    // Yes, user wants "products matching".
+                    const productsOnly = results.filter(r => !r.type || r.type === 'product');
+                    renderSearchResults(productsOnly);
+                });
+                container.appendChild(more);
+            }
+
+            container.classList.add('active');
+        }
+
+        // Reuse renderSearchResults from previous step (no change needed there)
+        // Reuse debounce
+
+
+        function renderSearchResults(results) {
+            const grid = document.getElementById('pGrid');
+            const main = document.getElementById('mainContent');
+            
+            // Ensure we are in a "list" view mode
+            // Sidebar should be hidden
+            const sb = document.getElementById('sidebar');
+            if(sb) sb.classList.add('hidden');
+             resetFiltersAnimation();
+
+            // Setup view if not already
+            if (!document.getElementById('pGrid')) {
+                 main.innerHTML = `
+                    <div class="view-header">
+                        <h2>Результаты поиска (${results.length})</h2>
+                    </div>
+                    <div id="pGrid" class="grid-products"></div>
+                `;
+            } else {
+                 document.querySelector('.view-header h2').textContent = `Результаты поиска (${results.length})`;
+            }
+
+            const container = document.getElementById('pGrid');
+            container.innerHTML = '';
+
+            if (results.length === 0) {
+                container.innerHTML = '<div style="padding:2rem;">Ничего не найдено</div>';
+                return;
+            }
+
+            // Limit results for performance if too many? 
+            // Let's show first 50
+            results.slice(0, 50).forEach(p => {
+                 // Convert search index format to match renderProductCard expectation
+                 // renderProductCard expects: { name, vendorCode, price, imageUrl (optional) }
+                 // search_index has: { id, name, vendorCode, category, keywords, description, price, quantity }
+                 // We don't have imageUrl in search_index, so it will show camera icon.
+                 // If we want images, we need to populate them in build script if available in XML.
+                 // In import.xml <Картинка> is present.
+                 // But for now, let's use what we have.
+                 renderProductCard(container, p);
+            });
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
         init();
+        setupSearch();
     </script>
 </body>
 </html>
